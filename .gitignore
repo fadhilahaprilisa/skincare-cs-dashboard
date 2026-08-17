@@ -1,0 +1,11 @@
+# Virtual Environment
+venv/
+__pycache__/
+*.pyc
+
+# Environment variables (jangan bocorkan API Key!)
+.env
+
+# IDE
+.vscode/
+.idea/
