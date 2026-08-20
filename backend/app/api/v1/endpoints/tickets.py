@@ -1,58 +1,45 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.ticket import TicketCreate, TicketResponse
+from app.models.ticket import Ticket, TicketStatus
 from app.services.langflow_service import call_langflow_workflow
+from app.core.database import get_db
 
 router = APIRouter()
 
-# ==========================================
-# SIMULASI DATABASE SEMENTARA (Fake DB)
-# Nanti di Fase 4 kita ganti dengan PostgreSQL
-# ==========================================
-fake_db = []
-counter = 1
-
 @router.post("/tickets", response_model=TicketResponse)
-async def create_ticket(ticket: TicketCreate):
-    """
-    Endpoint untuk membuat tiket baru.
-    - Menerima nama customer dan teks keluhan.
-    - Memanggil AI Langflow untuk analisis & draf balasan.
-    - Menyimpan hasil ke database (sementara di list).
-    """
-    global counter
-    
-    # 1. Buat tiket dengan status PROCESSING
-    new_ticket = {
-        "id": counter,
-        "customer_name": ticket.customer_name,
-        "complaint_text": ticket.complaint_text,
-        "status": "PROCESSING",
-        "ai_analysis": None,
-        "ai_draft_reply": None
-    }
-    fake_db.append(new_ticket)
-    counter += 1
+async def create_ticket(ticket: TicketCreate, db: AsyncSession = Depends(get_db)):
+    # 1. Buat objek tiket baru dengan status PROCESSING
+    new_ticket = Ticket(
+        customer_name=ticket.customer_name,
+        complaint_text=ticket.complaint_text,
+        status=TicketStatus.PROCESSING
+    )
+    db.add(new_ticket)
+    await db.commit()
+    await db.refresh(new_ticket)
 
-    # 2. Panggil service Langflow (fungsi async yang sudah kita buat di Fase 2)
+    # 2. Panggil AI Langflow
     ai_result = await call_langflow_workflow(ticket.complaint_text)
     
     # 3. Update tiket dengan hasil AI
-    new_ticket["ai_analysis"] = ai_result.get("analysis")
-    new_ticket["ai_draft_reply"] = ai_result.get("draft_reply")
+    new_ticket.ai_analysis = ai_result.get("analysis")
+    new_ticket.ai_draft_reply = ai_result.get("draft_reply")
     
-    # 4. Tentukan status: RESOLVED jika AI berhasil ngasih balasan, FAILED jika error
+    # 4. Tentukan status
     if ai_result.get("draft_reply") and "Error" not in ai_result.get("analysis", ""):
-        new_ticket["status"] = "RESOLVED"
+        new_ticket.status = TicketStatus.RESOLVED
     else:
-        new_ticket["status"] = "FAILED"
+        new_ticket.status = TicketStatus.FAILED
+        
+    await db.commit()
+    await db.refresh(new_ticket)
     
     return new_ticket
 
-
 @router.get("/tickets", response_model=list[TicketResponse])
-async def get_all_tickets():
-    """
-    Endpoint untuk mengambil semua riwayat tiket.
-    Berguna untuk dashboard monitoring.
-    """
-    return fake_db
+async def get_all_tickets(db: AsyncSession = Depends(get_db)):
+    from sqlalchemy import select
+    result = await db.execute(select(Ticket).order_by(Ticket.id.desc()))
+    tickets = result.scalars().all()
+    return tickets
