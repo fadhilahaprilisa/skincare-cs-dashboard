@@ -4,7 +4,8 @@
 
 > **"Nuansa premium, berkesan bersinar dan sehat."**
 
-![Dashboard Preview](https://via.placeholder.com/800x400?text=Lumière+Skin+Dashboard) *(Replace with your actual screenshot)*
+<img width="1365" height="689" alt="Screenshot 2026-08-21 175148" src="https://github.com/user-attachments/assets/64ef90af-761b-4ff4-9d2c-c59e494777a1" />
+
 
 ---
 
@@ -139,6 +140,7 @@ Update the ticket with the AI-generated reply.
 The dashboard table will refresh, showing the new ticket. Click "Lihat Balasan" to read the full empathetic reply from the AI.
 
 📸 Screenshots
+<img width="1365" height="689" alt="Screenshot 2026-08-21 175148" src="https://github.com/user-attachments/assets/cd51b54a-4574-40ae-8b45-a0af006185f2" />
 
 
 Main Dashboard: Overview of ticket form and list.
