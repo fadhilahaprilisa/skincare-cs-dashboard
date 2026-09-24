@@ -6,6 +6,7 @@ import CSDashboard from './pages/CSDashboard';
 import TicketDetailPage from './pages/TicketDetailPage';
 import InputComplaintPage from './pages/InputComplaintPage';
 import MyTicketsPage from './pages/MyTicketsPage';
+import AIAnalysisPage from './pages/AIAnalysisPage';
 
 // Placeholder pages — akan diisi di Fase 4-6
 const Placeholder = ({ title }) => (
@@ -33,11 +34,8 @@ function App() {
       <Route path="/cs/tickets" element={<MyTicketsPage />} />
       <Route path="/cs/tickets/:ticketId" element={<TicketDetailPage />} />
       <Route path="/cs/new-complaint" element={<InputComplaintPage />} />
-      <Route path="/cs/ai-analysis" element={
-        <DashboardLayout role="cs" topbarProps={{ title: "AI Analysis", subtitle: "Analisis keluhan customer dengan bantuan AI" }}>
-          <Placeholder title="AI Analysis" />
-        </DashboardLayout>
-      } />
+      <Route path="/cs/ai-analysis" element={<AIAnalysisPage />} />
+<Route path="/cs/ai-analysis/:ticketId" element={<AIAnalysisPage />} />
       <Route path="/cs/resolved" element={
         <DashboardLayout role="cs" topbarProps={{ title: "Resolved Tickets", subtitle: "Riwayat tiket yang sudah diselesaikan" }}>
           <Placeholder title="Resolved Tickets" />
