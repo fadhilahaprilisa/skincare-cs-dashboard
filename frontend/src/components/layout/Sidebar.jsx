@@ -1,21 +1,5 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { currentUser } from "../../data/mockData";
-
-const Logo = () => (
-  <div className="flex items-center gap-3">
-    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-cyan to-brand-violet flex items-center justify-center shadow-cyan-glow">
-      <span className="material-symbols-outlined text-white text-[20px]">spa</span>
-    </div>
-    <div className="flex flex-col">
-      <span className="text-headline-sm text-primary font-bold tracking-tight leading-none">
-        Lumière Skin
-      </span>
-      <span className="text-label-sm text-primary-fixed-dim uppercase tracking-widest mt-0.5">
-        Agent Portal
-      </span>
-    </div>
-  </div>
-);
+import { NavLink } from "react-router-dom";
+import Logo from "../ui/Logo";
 
 const NavItem = ({ to, icon, label, badge }) => (
   <NavLink
@@ -40,13 +24,28 @@ const NavItem = ({ to, icon, label, badge }) => (
   </NavLink>
 );
 
+// ===== BRAND HEADER (Reusable untuk kedua sidebar) =====
+const BrandHeader = ({ subtitle }) => (
+  <div className="flex items-center gap-3">
+    <Logo size="md" />
+    <div className="flex flex-col">
+      <span className="text-headline-sm text-primary font-bold tracking-tight leading-none">
+        Lumière Skin
+      </span>
+      <span className="text-label-sm text-primary-fixed-dim uppercase tracking-widest mt-0.5">
+        {subtitle}
+      </span>
+    </div>
+  </div>
+);
+
 // ===== CS AGENT SIDEBAR =====
 export const CSSidebar = () => {
   return (
     <aside className="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-outline-variant/20">
       <div className="flex flex-col">
         <div className="h-20 px-6 flex items-center">
-          <Logo />
+          <BrandHeader subtitle="Agent Portal" />
         </div>
 
         <nav className="flex flex-col gap-1 px-4 py-2">
@@ -91,20 +90,8 @@ export const AdminSidebar = () => {
   return (
     <aside className="fixed left-0 top-0 h-full w-72 bg-surface-container-low z-50 flex flex-col justify-between border-r border-outline-variant/20">
       <div className="flex flex-col">
-        <div className="h-20 px-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-cyan to-brand-violet flex items-center justify-center shadow-cyan-glow">
-              <span className="material-symbols-outlined text-white text-[20px]">spa</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-headline-sm text-primary font-bold tracking-tight leading-none">
-                Lumière Skin
-              </span>
-              <span className="text-label-sm text-primary-fixed-dim uppercase tracking-widest mt-0.5">
-                Admin Console
-              </span>
-            </div>
-          </div>
+        <div className="h-20 px-6 flex items-center">
+          <BrandHeader subtitle="Admin Console" />
         </div>
 
         <nav className="flex flex-col gap-1 px-4 py-2">

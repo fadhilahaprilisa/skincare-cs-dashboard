@@ -1,7 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import DashboardLayout from './components/layout/DashboardLayout';
+import LoginPage from './pages/LoginPage';
+import AdminDashboard from './pages/AdminDashboard';
+import CSDashboard from './pages/CSDashboard';
 
-// Placeholder pages — akan diisi di Fase 2-6
+// Placeholder pages — akan diisi di Fase 3-6
 const Placeholder = ({ title }) => (
   <div className="p-8">
     <div className="bg-surface-container-low rounded-xl p-12 text-center border border-outline-variant/30">
@@ -19,15 +22,11 @@ const Placeholder = ({ title }) => (
 function App() {
   return (
     <Routes>
-      {/* Login */}
-      <Route path="/login" element={<Placeholder title="Login Page" />} />
+      {/* ===== LOGIN ===== */}
+      <Route path="/login" element={<LoginPage />} />
 
-      {/* CS Agent Routes */}
-      <Route path="/cs/dashboard" element={
-        <DashboardLayout role="cs" topbarProps={{ title: "Good morning, Sarah 👋", subtitle: "Berikut ringkasan tiket yang perlu kamu tangani hari ini.", showInputButton: true }}>
-          <Placeholder title="CS Dashboard" />
-        </DashboardLayout>
-      } />
+      {/* ===== CS AGENT ROUTES ===== */}
+      <Route path="/cs/dashboard" element={<CSDashboard />} />
       <Route path="/cs/tickets" element={
         <DashboardLayout role="cs" topbarProps={{ title: "My Tickets", subtitle: "Antrean terverifikasi dan riwayat interaksi harian", showInputButton: true }}>
           <Placeholder title="My Tickets" />
@@ -48,13 +47,19 @@ function App() {
           <Placeholder title="Ticket Detail" />
         </DashboardLayout>
       } />
-
-      {/* Admin Routes */}
-      <Route path="/admin/dashboard" element={
-        <DashboardLayout role="admin" topbarProps={{ title: "Dashboard Admin", subtitle: "Pantau aktivitas customer service dan insight keluhan skincare." }}>
-          <Placeholder title="Admin Dashboard" />
+      <Route path="/cs/resolved" element={
+        <DashboardLayout role="cs" topbarProps={{ title: "Resolved Tickets", subtitle: "Riwayat tiket yang sudah diselesaikan" }}>
+          <Placeholder title="Resolved Tickets" />
         </DashboardLayout>
       } />
+      <Route path="/cs/settings" element={
+        <DashboardLayout role="cs" topbarProps={{ title: "Settings", subtitle: "Pengaturan akun dan preferensi" }}>
+          <Placeholder title="CS Settings" />
+        </DashboardLayout>
+      } />
+
+      {/* ===== ADMIN ROUTES ===== */}
+      <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/analytics" element={
         <DashboardLayout role="admin" topbarProps={{ title: "Complaint Analytics", subtitle: "Analisis pola keluhan, produk, sentiment, dan performa CS" }}>
           <Placeholder title="Admin Analytics" />
@@ -70,8 +75,23 @@ function App() {
           <Placeholder title="Admin Tickets" />
         </DashboardLayout>
       } />
+      <Route path="/admin/cs-agents" element={
+        <DashboardLayout role="admin" topbarProps={{ title: "CS Agents", subtitle: "Monitoring performa tim CS" }}>
+          <Placeholder title="CS Agents" />
+        </DashboardLayout>
+      } />
+      <Route path="/admin/reports" element={
+        <DashboardLayout role="admin" topbarProps={{ title: "Reports", subtitle: "Laporan dan export data" }}>
+          <Placeholder title="Reports" />
+        </DashboardLayout>
+      } />
+      <Route path="/admin/settings" element={
+        <DashboardLayout role="admin" topbarProps={{ title: "Settings", subtitle: "Pengaturan sistem dan preferensi" }}>
+          <Placeholder title="Admin Settings" />
+        </DashboardLayout>
+      } />
 
-      {/* Default Redirect */}
+      {/* ===== DEFAULT REDIRECT ===== */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
