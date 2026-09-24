@@ -7,6 +7,8 @@ import TicketDetailPage from './pages/TicketDetailPage';
 import InputComplaintPage from './pages/InputComplaintPage';
 import MyTicketsPage from './pages/MyTicketsPage';
 import AIAnalysisPage from './pages/AIAnalysisPage';
+import AdminAnalyticsPage from './pages/AdminAnalyticsPage';
+import AIInsightsPage from './pages/AIInsightsPage';
 
 // Placeholder pages — akan diisi di Fase 4-6
 const Placeholder = ({ title }) => (
@@ -49,16 +51,8 @@ function App() {
 
       {/* ===== ADMIN ROUTES ===== */}
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
-      <Route path="/admin/analytics" element={
-        <DashboardLayout role="admin" topbarProps={{ title: "Complaint Analytics", subtitle: "Analisis pola keluhan, produk, sentiment, dan performa CS" }}>
-          <Placeholder title="Admin Analytics" />
-        </DashboardLayout>
-      } />
-      <Route path="/admin/ai-insights" element={
-        <DashboardLayout role="admin" topbarProps={{ title: "AI Insights", subtitle: "Temuan pola keluhan berbasis AI" }}>
-          <Placeholder title="AI Insights" />
-        </DashboardLayout>
-      } />
+      <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+      <Route path="/admin/ai-insights" element={<AIInsightsPage />} />
       <Route path="/admin/tickets" element={
         <DashboardLayout role="admin" topbarProps={{ title: "Tickets", subtitle: "Monitoring semua tiket customer service" }}>
           <Placeholder title="Admin Tickets" />
