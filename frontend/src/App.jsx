@@ -3,8 +3,11 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import CSDashboard from './pages/CSDashboard';
+import TicketDetailPage from './pages/TicketDetailPage';
+import InputComplaintPage from './pages/InputComplaintPage';
+import MyTicketsPage from './pages/MyTicketsPage';
 
-// Placeholder pages — akan diisi di Fase 3-6
+// Placeholder pages — akan diisi di Fase 4-6
 const Placeholder = ({ title }) => (
   <div className="p-8">
     <div className="bg-surface-container-low rounded-xl p-12 text-center border border-outline-variant/30">
@@ -27,24 +30,12 @@ function App() {
 
       {/* ===== CS AGENT ROUTES ===== */}
       <Route path="/cs/dashboard" element={<CSDashboard />} />
-      <Route path="/cs/tickets" element={
-        <DashboardLayout role="cs" topbarProps={{ title: "My Tickets", subtitle: "Antrean terverifikasi dan riwayat interaksi harian", showInputButton: true }}>
-          <Placeholder title="My Tickets" />
-        </DashboardLayout>
-      } />
-      <Route path="/cs/new-complaint" element={
-        <DashboardLayout role="cs" topbarProps={{ title: "Input Keluhan Customer", subtitle: "Catat keluhan customer untuk dianalisis AI" }}>
-          <Placeholder title="Input Complaint" />
-        </DashboardLayout>
-      } />
+      <Route path="/cs/tickets" element={<MyTicketsPage />} />
+      <Route path="/cs/tickets/:ticketId" element={<TicketDetailPage />} />
+      <Route path="/cs/new-complaint" element={<InputComplaintPage />} />
       <Route path="/cs/ai-analysis" element={
         <DashboardLayout role="cs" topbarProps={{ title: "AI Analysis", subtitle: "Analisis keluhan customer dengan bantuan AI" }}>
           <Placeholder title="AI Analysis" />
-        </DashboardLayout>
-      } />
-      <Route path="/cs/tickets/:ticketId" element={
-        <DashboardLayout role="cs" topbarProps={{ title: "Detail Tiket", subtitle: "Review keluhan customer dan tindakan penanganan" }}>
-          <Placeholder title="Ticket Detail" />
         </DashboardLayout>
       } />
       <Route path="/cs/resolved" element={
