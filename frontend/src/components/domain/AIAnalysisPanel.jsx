@@ -138,6 +138,19 @@ export const AIAnalysisPanel = ({ analysis, ticketId }) => {
             </span>
             <span>Data Sumber: Tiket {ticketId}</span>
           </div>
+          <div className="flex items-center gap-3 text-code-sm text-on-surface-variant">
+  <span className="flex items-center gap-1 text-brand-cyan">
+    <span className="w-1.5 h-1.5 rounded-full bg-brand-cyan"></span>
+    AI-Assisted Analysis Selesai (0.8 detik)
+  </span>
+  <span>Data Sumber: Tiket {ticketId}</span>
+  <button
+    onClick={() => window.location.href = `/cs/ai-analysis/${ticketId.replace("#", "")}`}
+    className="text-brand-cyan hover:text-primary-fixed underline font-label-md"
+  >
+    Buka Detail Lengkap →
+  </button>
+</div>
           <StatusBadge type="aiAnalyzed" label="Human Review Required" />
         </div>
       </div>
