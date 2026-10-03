@@ -1,22 +1,53 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import StatCard from "../components/domain/StatCard";
 import StatusBadge from "../components/ui/StatusBadge";
 import Card from "../components/ui/Card";
-import { kpiCS, tickets } from "../data/mockData";
+import { ticketsAPI, getErrorMessage } from "../lib/api";
+import { useAuth } from "../contexts/AuthContext";
 
 const CSDashboard = () => {
   const navigate = useNavigate();
-  const priorityTickets = tickets.slice(0, 3);
+const { user } = useAuth();
+const [tickets, setTickets] = useState([]);
+const [isLoading, setIsLoading] = useState(true);
+const [error, setError] = useState(null);
+
+useEffect(() => {
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const data = await ticketsAPI.getAll({ assignedToMe: true });
+      setTickets(data);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  fetchData();
+}, []);
+
+// Compute KPI dari tickets
+const kpiCS = {
+  myTickets: tickets.length,
+  pendingReply: tickets.filter((t) => t.status === "PROCESSING").length,
+  resolvedToday: tickets.filter((t) => t.status === "RESOLVED").length,
+  resolvedTrend: "+0",
+  urgent: tickets.filter((t) => t.severity === "High").length,
+};
+
+const priorityTickets = tickets.filter((t) => t.severity === "High" || t.status === "PROCESSING").slice(0, 3);
 
   return (
     <DashboardLayout
       role="cs"
       topbarProps={{
-        title: "Good morning, Sarah 👋",
-        subtitle: "Berikut ringkasan tiket yang perlu kamu tangani hari ini.",
-        showInputButton: true,
-      }}
+  title: `Good morning, ${user?.full_name?.split(" ")[0] || "Sarah"} 👋`,
+  subtitle: "Berikut ringkasan tiket yang perlu kamu tangani hari ini.",
+  showInputButton: true,
+}}
     >
       <div className="p-6 space-y-6">
         {/* ===== SLA ALERT BANNER ===== */}
@@ -57,6 +88,21 @@ const CSDashboard = () => {
         </div>
 
         {/* ===== 2-COLUMN WORKSPACE ===== */}
+        {isLoading && (
+  <div className="p-12 text-center">
+    <span className="material-symbols-outlined text-brand-cyan text-[48px] animate-spin">
+      progress_activity
+    </span>
+    <p className="text-body-sm text-on-surface-variant mt-3">Memuat tiket...</p>
+  </div>
+)}
+
+{error && (
+  <div className="p-4 rounded-lg bg-[#FF4D4D]/10 border border-[#FF4D4D]/30 flex items-start gap-3">
+    <span className="material-symbols-outlined text-[#FF4D4D] text-[20px]">error</span>
+    <p className="text-body-sm text-[#FF4D4D]">{error}</p>
+  </div>
+)}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* LEFT: PRIORITY + TABLE ===== */}
           <div className="lg:col-span-8 space-y-6">
