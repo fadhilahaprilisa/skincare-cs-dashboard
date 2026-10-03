@@ -1,5 +1,7 @@
 import { NavLink } from "react-router-dom";
 import Logo from "../ui/Logo";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 const NavItem = ({ to, icon, label, badge }) => (
   <NavLink
@@ -41,6 +43,15 @@ const BrandHeader = ({ subtitle }) => (
 
 // ===== CS AGENT SIDEBAR =====
 export const CSSidebar = () => {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    logout();
+    navigate("/login");
+  };
+
   return (
     <aside className="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-outline-variant/20">
       <div className="flex flex-col">
@@ -73,13 +84,13 @@ export const CSSidebar = () => {
           <span className="w-2 h-2 rounded-full bg-primary-container shadow-cyan-glow"></span>
         </div>
 
-        <NavLink
-          to="/login"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-error-container hover:text-on-error-container transition-all"
-        >
-          <span className="material-symbols-outlined text-[20px]">logout</span>
-          <span className="text-headline-sm">Logout</span>
-        </NavLink>
+        <button
+  onClick={handleLogout}
+  className="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-error-container hover:text-on-error-container transition-all w-full text-left"
+>
+  <span className="material-symbols-outlined text-[20px]">logout</span>
+  <span className="text-headline-sm">Logout</span>
+</button>
       </div>
     </aside>
   );
@@ -87,6 +98,14 @@ export const CSSidebar = () => {
 
 // ===== ADMIN SIDEBAR =====
 export const AdminSidebar = () => {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    logout();
+    navigate("/login");
+  };
   return (
     <aside className="fixed left-0 top-0 h-full w-72 bg-surface-container-low z-50 flex flex-col justify-between border-r border-outline-variant/20">
       <div className="flex flex-col">
@@ -114,13 +133,13 @@ export const AdminSidebar = () => {
           </div>
         </div>
 
-        <NavLink
-          to="/login"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-error-container hover:text-on-error-container transition-all"
-        >
-          <span className="material-symbols-outlined text-[20px]">logout</span>
-          <span className="text-headline-sm">Logout</span>
-        </NavLink>
+        <button
+  onClick={handleLogout}
+  className="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-error-container hover:text-on-error-container transition-all w-full text-left"
+>
+  <span className="material-symbols-outlined text-[20px]">logout</span>
+  <span className="text-headline-sm">Logout</span>
+</button>
       </div>
     </aside>
   );

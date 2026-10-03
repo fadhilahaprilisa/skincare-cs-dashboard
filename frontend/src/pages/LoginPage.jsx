@@ -1,29 +1,56 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Logo from "../components/ui/Logo";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
+import { useAuth } from "../contexts/AuthContext";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login, isLoading, error: authError } = useAuth();
+
   const [role, setRole] = useState("admin");
   const [email, setEmail] = useState("admin@lumiereskin.id");
-  const [password, setPassword] = useState("secretPassword123");
+  const [password, setPassword] = useState("admin123");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [localError, setLocalError] = useState(null);
 
   const handleRoleChange = (newRole) => {
     setRole(newRole);
-    setEmail(newRole === "admin" ? "admin@lumiereskin.id" : "sarah@lumiereskin.id");
+    if (newRole === "admin") {
+      setEmail("admin@lumiereskin.id");
+      setPassword("admin123");
+    } else {
+      setEmail("sarah@lumiereskin.id");
+      setPassword("cs123");
+    }
+    setLocalError(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setTimeout(() => {
-      navigate(role === "admin" ? "/admin/dashboard" : "/cs/dashboard");
-    }, 600);
+    setLocalError(null);
+
+    // Validasi input dasar
+    if (!email.trim() || !password.trim()) {
+      setLocalError("Email dan password wajib diisi");
+      return;
+    }
+
+    try {
+      const user = await login(email, password, role);
+
+      // Redirect berdasarkan role user yang dikembalikan backend
+      const from = location.state?.from?.pathname;
+      const defaultPath = user.role === "admin" ? "/admin/dashboard" : "/cs/dashboard";
+      navigate(from || defaultPath, { replace: true });
+    } catch (err) {
+      setLocalError(err.message);
+    }
   };
+
+  const displayError = localError || authError;
 
   return (
     <main className="w-full min-h-screen flex flex-col lg:flex-row bg-ambient-radial">
@@ -32,7 +59,6 @@ const LoginPage = () => {
         <div aria-hidden="true" className="absolute -top-32 -left-32 w-96 h-96 bg-brand-violet/20 rounded-full blur-3xl pointer-events-none"></div>
         <div aria-hidden="true" className="absolute top-1/2 left-1/3 w-[500px] h-[500px] bg-brand-cyan/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-        {/* Header */}
         <header className="relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Logo size="lg" />
@@ -49,7 +75,6 @@ const LoginPage = () => {
           </div>
         </header>
 
-        {/* Center Hero */}
         <div className="my-10 lg:my-0 relative z-10">
           <span className="inline-block text-label-sm font-bold tracking-[0.2em] text-brand-cyan uppercase mb-3">
             AI-ASSISTED COMPLAINT WORKSPACE
@@ -61,7 +86,6 @@ const LoginPage = () => {
             Kelola keluhan pelanggan, pahami pola masalah, dan bantu tim CS memberikan respons cepat, tepat sasaran, dan solutif.
           </p>
 
-          {/* 3 Metric Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-8 pt-6 border-t border-outline-variant/40 relative">
             <div className="p-3.5 rounded-xl bg-surface-container/80 border border-outline-variant backdrop-blur-sm">
               <div className="flex items-center justify-between text-label-sm text-on-surface-variant mb-1.5">
@@ -107,7 +131,6 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Footer Trust Badges */}
         <footer className="relative z-10 pt-6 border-t border-outline-variant/40 flex flex-wrap items-center gap-y-3 gap-x-6 text-label-sm text-on-surface-variant">
           <div className="flex items-center gap-1.5">
             <span className="material-symbols-outlined text-brand-cyan text-[16px]">shield</span>
@@ -129,7 +152,6 @@ const LoginPage = () => {
         <div aria-hidden="true" className="absolute w-80 h-80 bg-brand-cyan/10 rounded-full blur-[100px] pointer-events-none"></div>
 
         <div className="w-full max-w-md p-7 sm:p-9 rounded-2xl bg-surface-container border border-outline-variant shadow-2xl relative z-10">
-          {/* SSO Status */}
           <div className="flex items-center justify-between mb-4">
             <span className="px-2.5 py-1 rounded bg-surface-container-high border border-outline-variant text-label-sm font-bold tracking-wider text-brand-cyan uppercase">
               Portal Internal
@@ -145,7 +167,16 @@ const LoginPage = () => {
             Masuk ke ekosistem kecerdasan layanan Lumière Skin
           </p>
 
-          {/* Role Selector */}
+          {/* Error Alert */}
+          {displayError && (
+            <div className="p-3 mb-4 rounded-lg bg-[#FF4D4D]/10 border border-[#FF4D4D]/30 flex items-start gap-2">
+              <span className="material-symbols-outlined text-[#FF4D4D] text-[18px] shrink-0 mt-0.5">
+                error
+              </span>
+              <span className="text-body-sm text-[#FF4D4D]">{displayError}</span>
+            </div>
+          )}
+
           <div className="mb-4">
             <label className="block text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider mb-2">
               Pilih Peran Akun
@@ -178,7 +209,6 @@ const LoginPage = () => {
             </div>
           </div>
 
-          {/* Role Context Box */}
           <div className="p-3.5 mb-5 rounded-xl bg-surface-container-high border border-outline-variant">
             <div className="flex items-start gap-3">
               <div className="p-2 rounded-lg bg-surface-container-lowest text-brand-cyan border border-outline-variant mt-0.5">
@@ -202,7 +232,6 @@ const LoginPage = () => {
             </div>
           </div>
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               label="Email Perusahaan"
@@ -211,6 +240,7 @@ const LoginPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="nama@lumiereskin.id"
               icon="mail"
+              disabled={isLoading}
               required
             />
 
@@ -226,12 +256,14 @@ const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2.5 pl-10 pr-10 text-body-md text-on-surface focus:outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/20 transition-all"
+                  disabled={isLoading}
+                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2.5 pl-10 pr-10 text-body-md text-on-surface focus:outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/20 transition-all disabled:opacity-60"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors"
+                  tabIndex={-1}
                 >
                   <span className="material-symbols-outlined text-[18px]">
                     {showPassword ? "visibility_off" : "visibility"}
@@ -247,7 +279,7 @@ const LoginPage = () => {
                   defaultChecked
                   className="w-4 h-4 rounded bg-surface-container-lowest border-outline-variant text-brand-cyan focus:ring-0"
                 />
-                <span className="text-label-sm text-on-surface-variant">Ingat sesi saya (14 Hari)</span>
+                <span className="text-label-sm text-on-surface-variant">Ingat sesi saya (7 Hari)</span>
               </label>
               <a className="text-label-sm text-on-surface-variant hover:text-brand-cyan transition-colors" href="#">
                 Lupa kata sandi?
@@ -266,7 +298,22 @@ const LoginPage = () => {
             </Button>
           </form>
 
-          {/* Footnote */}
+          {/* Demo Credentials Hint */}
+          <div className="mt-4 p-3 rounded-lg bg-brand-cyan/5 border border-brand-cyan/20">
+            <div className="flex items-start gap-2">
+              <span className="material-symbols-outlined text-brand-cyan text-[16px] shrink-0 mt-0.5">
+                info
+              </span>
+              <div className="text-label-sm text-on-surface-variant leading-relaxed">
+                <strong className="text-brand-cyan">Demo Credentials:</strong>
+                <br />
+                Admin: <code className="text-primary">admin@lumiereskin.id</code> / <code className="text-primary">admin123</code>
+                <br />
+                CS: <code className="text-primary">sarah@lumiereskin.id</code> / <code className="text-primary">cs123</code>
+              </div>
+            </div>
+          </div>
+
           <div className="mt-6 pt-5 border-t border-outline-variant/40 text-center space-y-2">
             <div className="flex items-center justify-center gap-1.5 text-label-sm text-on-surface-variant">
               <span className="material-symbols-outlined text-brand-cyan text-[14px]">shield</span>
