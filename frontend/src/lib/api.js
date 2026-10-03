@@ -84,16 +84,28 @@ export const authAPI = {
 };
 
 export const ticketsAPI = {
-  getAll: async () => {
-    const res = await api.get("/api/v1/tickets");
+  getAll: async (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.status) query.append("status", params.status);
+    if (params.severity) query.append("severity", params.severity);
+    if (params.assignedToMe) query.append("assigned_to_me", "true");
+    const qs = query.toString();
+    const res = await api.get(`/api/v1/tickets${qs ? `?${qs}` : ""}`);
     return res.data;
   },
+
   create: async (payload) => {
     const res = await api.post("/api/v1/tickets", payload);
     return res.data;
   },
+
   getById: async (id) => {
     const res = await api.get(`/api/v1/tickets/${id}`);
+    return res.data;
+  },
+
+  updateStatus: async (id, status) => {
+    const res = await api.patch(`/api/v1/tickets/${id}/status`, { status });
     return res.data;
   },
 };
