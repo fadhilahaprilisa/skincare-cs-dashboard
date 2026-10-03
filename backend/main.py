@@ -3,6 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.endpoints import tickets
 from app.models.ticket import Base
 from app.core.database import engine
+from app.api.v1.endpoints import auth
+from app.models.user import User, UserRole
+from app.core.security import hash_password
+from sqlalchemy import select
 
 # Inisialisasi aplikasi FastAPI
 app = FastAPI(
@@ -17,9 +21,44 @@ app = FastAPI(
 @app.on_event("startup")
 async def startup():
     async with engine.begin() as conn:
-        # run_sync menjalankan perintah SQLAlchemy sync (create_all) di lingkungan async
         await conn.run_sync(Base.metadata.create_all)
     print("✅ Database tables checked/created successfully!")
+
+    # ===== SEED USERS (hanya jika belum ada) =====
+    from app.core.database import AsyncSessionLocal
+
+    async with AsyncSessionLocal() as session:
+        # Admin seed
+        admin_email = "admin@lumiereskin.id"
+        result = await session.execute(select(User).where(User.email == admin_email))
+        if not result.scalar_one_or_none():
+            admin = User(
+                email=admin_email,
+                full_name="Dr. Adrian Wicaksono",
+                role=UserRole.ADMIN,
+                role_label="Admin & Head of Care",
+                initials="AW",
+                hashed_password=hash_password("admin123"),
+            )
+            session.add(admin)
+            print(f"✅ Seeded admin: {admin_email} / admin123")
+
+        # CS Agent seed
+        cs_email = "sarah@lumiereskin.id"
+        result = await session.execute(select(User).where(User.email == cs_email))
+        if not result.scalar_one_or_none():
+            cs = User(
+                email=cs_email,
+                full_name="Sarah Pramudita",
+                role=UserRole.CS,
+                role_label="CS Agent",
+                initials="SP",
+                hashed_password=hash_password("cs123"),
+            )
+            session.add(cs)
+            print(f"✅ Seeded CS Agent: {cs_email} / cs123")
+
+        await session.commit()
 
 # ==========================================
 # KONFIGURASI CORS (Agar frontend React nanti bisa akses)
@@ -34,6 +73,7 @@ app.add_middleware(
 
 # Daftarkan semua endpoint yang ada di file tickets.py
 app.include_router(tickets.router, prefix="/api/v1", tags=["Tickets"])
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
 
 # Root endpoint untuk cek apakah server hidup
 @app.get("/")
