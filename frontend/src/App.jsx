@@ -9,6 +9,12 @@ import MyTicketsPage from './pages/MyTicketsPage';
 import AIAnalysisPage from './pages/AIAnalysisPage';
 import AdminAnalyticsPage from './pages/AdminAnalyticsPage';
 import AIInsightsPage from './pages/AIInsightsPage';
+import ResolvedTicketsPage from './pages/ResolvedTicketsPage';
+import AdminTicketsPage from './pages/AdminTicketsPage';
+import CSAgentsPage from './pages/CSAgentsPage';
+import ReportsPage from './pages/ReportsPage';
+import CSSettingsPage from './pages/CSSettingsPage';
+import AdminSettingsPage from './pages/AdminSettingsPage';
 
 // Placeholder pages — akan diisi di Fase 4-6
 const Placeholder = ({ title }) => (
@@ -38,41 +44,18 @@ function App() {
       <Route path="/cs/new-complaint" element={<InputComplaintPage />} />
       <Route path="/cs/ai-analysis" element={<AIAnalysisPage />} />
 <Route path="/cs/ai-analysis/:ticketId" element={<AIAnalysisPage />} />
-      <Route path="/cs/resolved" element={
-        <DashboardLayout role="cs" topbarProps={{ title: "Resolved Tickets", subtitle: "Riwayat tiket yang sudah diselesaikan" }}>
-          <Placeholder title="Resolved Tickets" />
-        </DashboardLayout>
-      } />
-      <Route path="/cs/settings" element={
-        <DashboardLayout role="cs" topbarProps={{ title: "Settings", subtitle: "Pengaturan akun dan preferensi" }}>
-          <Placeholder title="CS Settings" />
-        </DashboardLayout>
-      } />
+      <Route path="/cs/resolved" element={<ResolvedTicketsPage />} />
+<Route path="/cs/settings" element={<CSSettingsPage />} />
+
 
       {/* ===== ADMIN ROUTES ===== */}
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
       <Route path="/admin/ai-insights" element={<AIInsightsPage />} />
-      <Route path="/admin/tickets" element={
-        <DashboardLayout role="admin" topbarProps={{ title: "Tickets", subtitle: "Monitoring semua tiket customer service" }}>
-          <Placeholder title="Admin Tickets" />
-        </DashboardLayout>
-      } />
-      <Route path="/admin/cs-agents" element={
-        <DashboardLayout role="admin" topbarProps={{ title: "CS Agents", subtitle: "Monitoring performa tim CS" }}>
-          <Placeholder title="CS Agents" />
-        </DashboardLayout>
-      } />
-      <Route path="/admin/reports" element={
-        <DashboardLayout role="admin" topbarProps={{ title: "Reports", subtitle: "Laporan dan export data" }}>
-          <Placeholder title="Reports" />
-        </DashboardLayout>
-      } />
-      <Route path="/admin/settings" element={
-        <DashboardLayout role="admin" topbarProps={{ title: "Settings", subtitle: "Pengaturan sistem dan preferensi" }}>
-          <Placeholder title="Admin Settings" />
-        </DashboardLayout>
-      } />
+      <Route path="/admin/tickets" element={<AdminTicketsPage />} />
+<Route path="/admin/cs-agents" element={<CSAgentsPage />} />
+      <Route path="/admin/reports" element={<ReportsPage />} />
+<Route path="/admin/settings" element={<AdminSettingsPage />} />
 
       {/* ===== DEFAULT REDIRECT ===== */}
       <Route path="/" element={<Navigate to="/login" replace />} />
