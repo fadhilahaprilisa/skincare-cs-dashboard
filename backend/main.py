@@ -8,6 +8,7 @@ from app.models.user import User, UserRole
 from app.core.security import hash_password
 from sqlalchemy import select
 from app.api.v1.endpoints import auth, analytics
+from app.api.v1.endpoints import auth, analytics, insights
 
 # Inisialisasi aplikasi FastAPI
 app = FastAPI(
@@ -76,6 +77,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(tickets.router, prefix="/api/v1", tags=["Tickets"])
 app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["Analytics"])
+app.include_router(insights.router, prefix="/api/v1/insights", tags=["AI Insights"])
 
 # Root endpoint untuk cek apakah server hidup
 @app.get("/")

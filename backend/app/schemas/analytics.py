@@ -53,3 +53,24 @@ class AnalyticsOverview(BaseModel):
     product_complaints: List[ProductComplaint]
     category_distribution: List[DistributionItem]
     cs_performance: List[CSPerformance]
+
+class AIInsightOverview(BaseModel):
+    id: str
+    title: str
+    category: str
+    ticket_count: int
+    percentage: float
+    severity: str
+    trend: str
+    related_product: str
+    description: str
+    evidence: dict
+    related_products: list
+    sentiment: dict
+    ai_interpretation: str
+    considerations: list
+
+
+class AIInsightsResponse(BaseModel):
+    insights: list[AIInsightOverview]
+    generated_at: str

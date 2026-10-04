@@ -118,3 +118,10 @@ export const analyticsAPI = {
     return res.data;
   },
 };
+
+export const insightsAPI = {
+  getInsights: async () => {
+    const res = await api.get("/api/v1/insights");
+    return res.data;
+  },
+};

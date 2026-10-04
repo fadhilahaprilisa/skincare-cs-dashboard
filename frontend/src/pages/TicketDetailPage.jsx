@@ -304,7 +304,17 @@ const TicketDetailPage = () => {
                       AI Analysis Summary
                     </h3>
                   </div>
-                  <StatusBadge type="aiAnalyzed" label="AI-generated • Human review required" />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      icon="auto_awesome"
+                      onClick={() => navigate(`/cs/ai-analysis/${ticket.id}`)}
+                    >
+                      Buka Analysis Lengkap
+                    </Button>
+                    <StatusBadge type="aiAnalyzed" label="Human review required" />
+                  </div>
                 </div>
 
                 <div className="p-5 flex flex-col gap-4">
