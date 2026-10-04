@@ -111,3 +111,10 @@ export const ticketsAPI = {
 };
 
 export default api;
+
+export const analyticsAPI = {
+  getOverview: async () => {
+    const res = await api.get("/api/v1/analytics/overview");
+    return res.data;
+  },
+};

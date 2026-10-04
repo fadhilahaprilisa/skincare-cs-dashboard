@@ -7,6 +7,7 @@ from app.api.v1.endpoints import auth
 from app.models.user import User, UserRole
 from app.core.security import hash_password
 from sqlalchemy import select
+from app.api.v1.endpoints import auth, analytics
 
 # Inisialisasi aplikasi FastAPI
 app = FastAPI(
@@ -72,8 +73,9 @@ app.add_middleware(
 )
 
 # Daftarkan semua endpoint yang ada di file tickets.py
-app.include_router(tickets.router, prefix="/api/v1", tags=["Tickets"])
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
+app.include_router(tickets.router, prefix="/api/v1", tags=["Tickets"])
+app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["Analytics"])
 
 # Root endpoint untuk cek apakah server hidup
 @app.get("/")
