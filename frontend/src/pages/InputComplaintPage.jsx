@@ -8,6 +8,35 @@ import Textarea from "../components/ui/Textarea";
 import StatusBadge from "../components/ui/StatusBadge";
 import { ticketsAPI, getErrorMessage } from "../lib/api";
 
+const NewCustomerForm = ({ onSubmit, onCancel }) => {
+  const [name, setName] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      setError("Nama wajib diisi");
+      return;
+    }
+    onSubmit({ name, whatsapp });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="p-2 rounded bg-[#FF4D4D]/10 text-[#FF4D4D] text-body-sm">{error}</div>
+      )}
+      <Input label="Nama Customer" value={name} onChange={(e) => setName(e.target.value)} required />
+      <Input label="WhatsApp (opsional)" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} />
+      <div className="flex justify-end gap-2">
+        <Button variant="secondary" size="sm" type="button" onClick={onCancel}>Batal</Button>
+        <Button variant="primary" size="sm" type="submit" icon="check">Simpan</Button>
+      </div>
+    </form>
+  );
+};
+
 const InputComplaintPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -21,6 +50,38 @@ const InputComplaintPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+
+  // State baru untuk attachment & customer baru
+  const [attachments, setAttachments] = useState([]);
+  const [showNewCustomerModal, setShowNewCustomerModal] = useState(false);
+
+  const handleUploadAttachment = () => {
+    const fakeFile = {
+      name: `complaint_${Date.now()}.jpg`,
+      size: "2.4 MB",
+      type: "JPG",
+    };
+    setAttachments([...attachments, fakeFile]);
+  };
+
+  const handleRemoveAttachment = (index) => {
+    setAttachments(attachments.filter((_, i) => i !== index));
+  };
+
+  const handleSaveDraft = () => {
+    localStorage.setItem("complaint_draft", JSON.stringify(formData));
+    alert("Draft tersimpan!");
+  };
+
+  const handleOpenNewCustomer = () => {
+    setShowNewCustomerModal(true);
+  };
+
+  const handleCreateCustomer = (newCustomer) => {
+    setFormData({ ...formData, customerName: newCustomer.name, whatsapp: newCustomer.whatsapp || formData.whatsapp });
+    setShowNewCustomerModal(false);
+    alert(`Customer "${newCustomer.name}" berhasil dibuat!`);
+  };
 
   const categories = ["Iritasi", "Reaksi Kulit", "Produk", "Pengiriman", "Kemasan", "Lainnya"];
 
@@ -49,7 +110,6 @@ const InputComplaintPage = () => {
   const handleSubmit = async () => {
     setError(null);
 
-    // Validasi
     if (!formData.customerName.trim()) {
       setError("Nama customer wajib diisi");
       return;
@@ -73,7 +133,6 @@ const InputComplaintPage = () => {
         category: formData.category,
         severity: formData.severity,
       });
-      // Redirect ke My Tickets setelah sukses
       navigate("/cs/tickets");
     } catch (err) {
       setError(getErrorMessage(err));
@@ -162,7 +221,17 @@ const InputComplaintPage = () => {
                     </p>
                   </div>
                 </div>
-                <StatusBadge type="processing" label="Langkah 1/2" />
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleOpenNewCustomer}
+                    className="text-brand-cyan hover:text-primary-fixed text-label-sm font-semibold flex items-center gap-1"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">person_add</span>
+                    + Customer Baru
+                  </button>
+                  <StatusBadge type="processing" label="Langkah 1/2" />
+                </div>
               </div>
 
               <div className="p-6 flex flex-col gap-4">
@@ -226,6 +295,7 @@ const InputComplaintPage = () => {
                     {categories.map((cat) => (
                       <button
                         key={cat}
+                        type="button"
                         onClick={() => setFormData({ ...formData, category: cat })}
                         disabled={isSubmitting}
                         className={`px-3 py-1.5 rounded-lg text-headline-sm flex items-center gap-1.5 transition-all ${
@@ -251,10 +321,10 @@ const InputComplaintPage = () => {
                   </div>
                   <div>
                     <h2 className="text-headline-sm text-primary font-semibold">
-                      Detail Keluhan
+                      Detail Keluhan & Lampiran
                     </h2>
                     <p className="text-label-sm text-on-surface-variant">
-                      Deskripsi objektif dari pesan pembeli
+                      Deskripsi objektif dan bukti pendukung
                     </p>
                   </div>
                 </div>
@@ -291,6 +361,61 @@ const InputComplaintPage = () => {
                   </div>
                 </div>
 
+                {/* Tombol Upload Attachment */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-label-md text-on-surface font-semibold">
+                    Lampiran Bukti (Opsional)
+                  </label>
+                  <div className="grid grid-cols-3 gap-3">
+                    <button
+                      type="button"
+                      onClick={handleUploadAttachment}
+                      className="p-3 rounded-lg bg-surface-container hover:bg-surface-container-high transition-all flex flex-col items-center justify-center gap-1.5 text-on-surface-variant hover:text-on-surface"
+                    >
+                      <span className="material-symbols-outlined text-brand-cyan text-[22px]">photo_camera</span>
+                      <span className="text-label-sm font-medium text-center">Foto Kondisi Kulit</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleUploadAttachment}
+                      className="p-3 rounded-lg bg-surface-container hover:bg-surface-container-high transition-all flex flex-col items-center justify-center gap-1.5 text-on-surface-variant hover:text-on-surface"
+                    >
+                      <span className="material-symbols-outlined text-brand-cyan text-[22px]">forum</span>
+                      <span className="text-label-sm font-medium text-center">Screenshot Chat WA</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleUploadAttachment}
+                      className="p-3 rounded-lg bg-surface-container hover:bg-surface-container-high transition-all flex flex-col items-center justify-center gap-1.5 text-on-surface-variant hover:text-on-surface"
+                    >
+                      <span className="material-symbols-outlined text-brand-cyan text-[22px]">qr_code_scanner</span>
+                      <span className="text-label-sm font-medium text-center">Bukti Batch / Segel</span>
+                    </button>
+                  </div>
+
+                  {/* Attachment Preview */}
+                  {attachments.length > 0 && (
+                    <div className="flex flex-col gap-2 mt-3">
+                      {attachments.map((file, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-surface-container">
+                          <div className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-brand-cyan text-[18px]">image</span>
+                            <span className="text-body-sm text-primary">{file.name}</span>
+                            <span className="text-label-sm text-on-surface-variant">({file.size})</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAttachment(idx)}
+                            className="text-[#FF4D4D] hover:bg-[#FF4D4D]/10 p-1 rounded transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">delete</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {/* Prioritas */}
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
@@ -305,6 +430,7 @@ const InputComplaintPage = () => {
                     {severityOptions.map((item) => (
                       <button
                         key={item.value}
+                        type="button"
                         onClick={() => setFormData({ ...formData, severity: item.value })}
                         disabled={isSubmitting}
                         className={`p-3 rounded-lg text-center flex flex-col items-center gap-1 transition-all ${
@@ -451,6 +577,7 @@ const InputComplaintPage = () => {
                     size="md"
                     icon="save"
                     className="w-full"
+                    onClick={handleSaveDraft}
                     disabled={isSubmitting}
                   >
                     Simpan sebagai Draft
@@ -461,6 +588,16 @@ const InputComplaintPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal New Customer */}
+      {showNewCustomerModal && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setShowNewCustomerModal(false)}>
+          <div className="bg-surface-container rounded-xl p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-headline-md text-primary font-semibold mb-4">Tambah Customer Baru</h3>
+            <NewCustomerForm onSubmit={handleCreateCustomer} onCancel={() => setShowNewCustomerModal(false)} />
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 };

@@ -4,13 +4,25 @@ import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 
-const CSSettingsPage = () => {
+const AdminSettingsPage = () => {
   const [notifications, setNotifications] = useState({
     email: true,
     sla_alert: true,
     ai_analysis: true,
     weekly_report: false,
   });
+
+  // ===== HANDLER SIMPAN PERUBAHAN =====
+  const handleSave = () => {
+    localStorage.setItem(
+      "user_settings_admin",
+      JSON.stringify({
+        notifications,
+        savedAt: new Date().toISOString(),
+      })
+    );
+    alert("Pengaturan berhasil disimpan!");
+  };
 
   return (
     <DashboardLayout
@@ -33,7 +45,7 @@ const CSSettingsPage = () => {
           <h3 className="text-headline-sm text-primary font-semibold mb-4">Profile</h3>
           <div className="flex flex-col md:flex-row items-start gap-6">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-brand-violet to-brand-cyan flex items-center justify-center text-white text-display-lg font-bold">
-              SP
+              AW
             </div>
             <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
               <Input label="Nama Lengkap" defaultValue="Dr. Adrian Wicaksono" />
@@ -43,7 +55,9 @@ const CSSettingsPage = () => {
             </div>
           </div>
           <div className="flex justify-end mt-4 pt-4 border-t border-outline-variant/30">
-            <Button variant="primary" size="sm" icon="save">Simpan Perubahan</Button>
+            <Button variant="primary" size="sm" icon="save" onClick={handleSave}>
+              Simpan Perubahan
+            </Button>
           </div>
         </Card>
 
@@ -84,7 +98,17 @@ const CSSettingsPage = () => {
           <p className="text-body-sm text-on-surface-variant mb-4">
             Tindakan berikut tidak dapat dibatalkan. Pastikan kamu yakin sebelum melanjutkan.
           </p>
-          <Button variant="destructive" size="sm" icon="logout">
+          <Button
+            variant="destructive"
+            size="sm"
+            icon="logout"
+            onClick={() => {
+              if (confirm("Logout dari semua perangkat? Anda akan diarahkan ke halaman login.")) {
+                localStorage.clear();
+                window.location.href = "/login";
+              }
+            }}
+          >
             Logout dari Semua Perangkat
           </Button>
         </Card>
@@ -93,4 +117,4 @@ const CSSettingsPage = () => {
   );
 };
 
-export default CSSettingsPage;
+export default AdminSettingsPage;

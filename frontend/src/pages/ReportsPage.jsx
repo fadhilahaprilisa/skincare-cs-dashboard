@@ -39,6 +39,26 @@ const ReportsPage = () => {
     },
   ];
 
+  // ===== HANDLER DOWNLOAD & GENERATE =====
+  const handleDownload = (reportName) => {
+    alert(`Download ${reportName} dimulai...`);
+    // Simulasi download
+    const blob = new Blob(
+      [`Report: ${reportName}\nGenerated at: ${new Date().toISOString()}`],
+      { type: "text/plain" }
+    );
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${reportName.replace(/\s+/g, "_").toLowerCase()}_${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleGenerateCustom = () => {
+    alert("Custom report generator coming soon! Untuk demo, gunakan Quick Export di atas.");
+  };
+
   return (
     <DashboardLayout
       role="admin"
@@ -57,7 +77,7 @@ const ReportsPage = () => {
               Download laporan periodik dan export data custom
             </p>
           </div>
-          <Button variant="primary" size="sm" icon="add">
+          <Button variant="primary" size="sm" icon="add" onClick={handleGenerateCustom}>
             Generate Custom Report
           </Button>
         </div>
@@ -75,6 +95,7 @@ const ReportsPage = () => {
             ].map((item, idx) => (
               <button
                 key={idx}
+                onClick={() => handleDownload(item.label)}
                 className="p-4 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors flex items-center gap-3 text-left"
               >
                 <div className="w-10 h-10 rounded-lg bg-brand-cyan/10 flex items-center justify-center text-brand-cyan shrink-0">
@@ -122,7 +143,10 @@ const ReportsPage = () => {
                     </div>
                   </div>
                 </div>
-                <button className="p-2 rounded-lg bg-surface-container hover:bg-brand-cyan hover:text-on-primary-container transition-colors">
+                <button
+                  onClick={() => handleDownload(r.name)}
+                  className="p-2 rounded-lg bg-surface-container hover:bg-brand-cyan hover:text-on-primary-container transition-colors"
+                >
                   <span className="material-symbols-outlined text-[20px]">download</span>
                 </button>
               </div>

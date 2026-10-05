@@ -1,3 +1,4 @@
+import { useState } from "react";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import Card from "../components/ui/Card";
 import StatusBadge from "../components/ui/StatusBadge";
@@ -5,6 +6,20 @@ import Button from "../components/ui/Button";
 import { analyticsData } from "../data/mockData";
 
 const CSAgentsPage = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", role: "cs" });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.name.trim() || !formData.email.trim()) {
+      alert("Nama dan email wajib diisi");
+      return;
+    }
+    alert(`Agent "${formData.name}" berhasil ditambahkan (demo mode).`);
+    setShowModal(false);
+    setFormData({ name: "", email: "", role: "cs" });
+  };
+
   return (
     <DashboardLayout
       role="admin"
@@ -23,7 +38,7 @@ const CSAgentsPage = () => {
               Total <strong className="text-brand-cyan">{analyticsData.csPerformance.length} agen</strong> aktif
             </p>
           </div>
-          <Button variant="primary" size="sm" icon="person_add">
+          <Button variant="primary" size="sm" icon="person_add" onClick={() => setShowModal(true)}>
             Tambah Agen
           </Button>
         </div>
@@ -105,6 +120,44 @@ const CSAgentsPage = () => {
           ))}
         </div>
       </div>
+
+      {/* Modal Tambah CS Agent */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setShowModal(false)}>
+          <div className="bg-surface-container rounded-xl p-6 max-w-md w-full shadow-2xl border border-outline-variant/30" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-headline-md text-primary font-semibold mb-4">Tambah CS Agent Baru</h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-label-md text-on-surface">Nama Lengkap</label>
+                <input
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2.5 px-3 text-body-md text-on-surface focus:outline-none focus:border-brand-cyan"
+                  placeholder="Nama CS Agent"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-label-md text-on-surface">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2.5 px-3 text-body-md text-on-surface focus:outline-none focus:border-brand-cyan"
+                  placeholder="email@lumiereskin.id"
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="secondary" size="sm" type="button" onClick={() => setShowModal(false)}>
+                  Batal
+                </Button>
+                <Button variant="primary" size="sm" type="submit" icon="check">
+                  Simpan
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 };

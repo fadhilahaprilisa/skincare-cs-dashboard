@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import Card from "../components/ui/Card";
 import StatusBadge from "../components/ui/StatusBadge";
@@ -6,12 +7,18 @@ import Button from "../components/ui/Button";
 import LineChartCard from "../components/domain/LineChartCard";
 import DonutChartCard from "../components/domain/DonutChartCard";
 import BarChartCard from "../components/domain/BarChartCard";
-import { analyticsAPI, getErrorMessage } from "../lib/api";
+import { analyticsAPI, exportAPI, downloadBlob, getErrorMessage } from "../lib/api";
 
 const AdminAnalyticsPage = () => {
+  const navigate = useNavigate();
   const [analytics, setAnalytics] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // ===== NEW STATE FOR EXPORT & FILTERS =====
+  const [exporting, setExporting] = useState(false);
+  const [period, setPeriod] = useState("7d");
+  const [productFilter, setProductFilter] = useState("all");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,7 +33,20 @@ const AdminAnalyticsPage = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [period]); // Reload atau sesuaikan fetch jika period berubah
+
+  // ===== HANDLER EXPORT =====
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const blob = await exportAPI.downloadTicketsCSV();
+      downloadBlob(blob, `lumiere_analytics_${Date.now()}.csv`);
+    } catch (err) {
+      alert(`Gagal export: ${getErrorMessage(err)}`);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   // ===== LOADING STATE =====
   if (isLoading) {
@@ -93,9 +113,14 @@ const AdminAnalyticsPage = () => {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex flex-col gap-1">
             <nav className="flex items-center gap-1 text-label-sm uppercase tracking-wider text-on-surface-variant">
-              <span>Dashboard</span>
+              <button
+                onClick={() => navigate("/admin/dashboard")}
+                className="hover:text-brand-cyan transition-colors cursor-pointer"
+              >
+                Dashboard
+              </button>
               <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-              <span className="text-brand-cyan">Analytics</span>
+              <span className="text-brand-cyan cursor-default">Analytics</span>
               <span className="material-symbols-outlined text-[14px]">chevron_right</span>
               <span className="text-primary">Complaint Intelligence</span>
             </nav>
@@ -108,18 +133,35 @@ const AdminAnalyticsPage = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-2 bg-surface-container px-3 py-2 rounded-lg text-on-surface text-label-md">
-              <span className="material-symbols-outlined text-[16px] text-brand-cyan">
-                calendar_today
-              </span>
-              <span>7 Hari Terakhir</span>
-            </div>
-            <div className="flex items-center gap-2 bg-surface-container px-3 py-2 rounded-lg text-on-surface text-label-md">
-              <span className="text-on-surface-variant">Produk:</span>
-              <span className="font-semibold">Semua Produk</span>
-            </div>
-            <Button variant="primary" size="md" icon="download">
-              Export Report
+            <select
+              value={period}
+              onChange={(e) => setPeriod(e.target.value)}
+              className="appearance-none bg-surface-container px-3 py-2 rounded-lg text-on-surface text-label-md cursor-pointer focus:outline-none"
+            >
+              <option value="7d">7 Hari Terakhir</option>
+              <option value="14d">14 Hari Terakhir</option>
+              <option value="30d">Bulan Berjalan</option>
+            </select>
+
+            <select
+              value={productFilter}
+              onChange={(e) => setProductFilter(e.target.value)}
+              className="appearance-none bg-surface-container px-3 py-2 rounded-lg text-on-surface text-label-md cursor-pointer focus:outline-none"
+            >
+              <option value="all">Semua Produk</option>
+              {analytics?.product_complaints?.map((p) => (
+                <option key={p.product} value={p.product}>{p.product}</option>
+              ))}
+            </select>
+
+            <Button
+              variant="primary"
+              size="md"
+              icon={exporting ? "progress_activity" : "download"}
+              onClick={handleExport}
+              disabled={exporting}
+            >
+              {exporting ? "Exporting..." : "Export Report"}
             </Button>
           </div>
         </div>
@@ -233,10 +275,24 @@ const AdminAnalyticsPage = () => {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <button className="px-3 py-1 rounded bg-brand-cyan text-on-primary-container text-label-sm font-semibold">
+              <button
+                onClick={() => setPeriod("7d")}
+                className={`px-3 py-1 rounded text-label-sm font-semibold transition-colors cursor-pointer ${
+                  period === "7d"
+                    ? "bg-brand-cyan text-on-primary-container"
+                    : "text-on-surface-variant hover:text-on-surface"
+                }`}
+              >
                 Harian
               </button>
-              <button className="px-3 py-1 rounded text-on-surface-variant hover:text-on-surface text-label-sm transition-colors">
+              <button
+                onClick={() => setPeriod("30d")}
+                className={`px-3 py-1 rounded text-label-sm transition-colors cursor-pointer ${
+                  period === "30d"
+                    ? "bg-brand-cyan text-on-primary-container font-semibold"
+                    : "text-on-surface-variant hover:text-on-surface"
+                }`}
+              >
                 Mingguan
               </button>
             </div>
@@ -436,7 +492,7 @@ const AdminAnalyticsPage = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className="px-4 py-8 text-center text-on-surface-variant">
+                    <td colSpan={6} className="px-4 py-8 text-center text-on-surface-variant">
                       Belum ada data CS performance
                     </td>
                   </tr>
@@ -445,6 +501,18 @@ const AdminAnalyticsPage = () => {
             </table>
           </div>
         </Card>
+
+        {/* ===== BOTTOM NAVIGATION ACTION ===== */}
+        <div className="flex justify-end pt-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            icon="arrow_forward"
+            onClick={() => navigate("/admin/ai-insights")}
+          >
+            Lihat AI Insights
+          </Button>
+        </div>
       </div>
     </DashboardLayout>
   );

@@ -4,7 +4,7 @@ import DashboardLayout from "../components/layout/DashboardLayout";
 import Card from "../components/ui/Card";
 import StatusBadge from "../components/ui/StatusBadge";
 import Button from "../components/ui/Button";
-import { ticketsAPI, getErrorMessage } from "../lib/api";
+import { ticketsAPI, exportAPI, downloadBlob, getErrorMessage } from "../lib/api";
 
 const MyTicketsPage = () => {
   const navigate = useNavigate();
@@ -13,6 +13,7 @@ const MyTicketsPage = () => {
   const [error, setError] = useState(null);
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [exporting, setExporting] = useState(false);
 
   // ===== FETCH TICKETS =====
   const fetchTickets = async () => {
@@ -31,6 +32,19 @@ const MyTicketsPage = () => {
   useEffect(() => {
     fetchTickets();
   }, []);
+
+  // ===== EXPORT HANDLER =====
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const blob = await exportAPI.downloadTicketsCSV();
+      downloadBlob(blob, `lumiere_tickets_${Date.now()}.csv`);
+    } catch (err) {
+      alert(`Gagal export: ${getErrorMessage(err)}`);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   // ===== FILTER LOGIC =====
   const filters = [
@@ -74,18 +88,6 @@ const MyTicketsPage = () => {
       .join("")
       .slice(0, 2)
       .toUpperCase();
-  };
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "-";
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("id-ID", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
   };
 
   const getSeverityBadge = (severity) => {
@@ -207,6 +209,18 @@ const MyTicketsPage = () => {
                   ? "Memuat..."
                   : `Menampilkan ${filteredTickets.length} dari ${tickets.length} tiket`}
               </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleExport}
+                disabled={exporting}
+                className="p-2 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors disabled:opacity-50"
+                title="Export CSV"
+              >
+                <span className={`material-symbols-outlined text-[18px] text-on-surface-variant ${exporting ? 'animate-spin' : ''}`}>
+                  {exporting ? "progress_activity" : "file_download"}
+                </span>
+              </button>
             </div>
           </div>
 

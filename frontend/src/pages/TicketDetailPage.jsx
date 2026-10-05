@@ -6,6 +6,7 @@ import StatusBadge from "../components/ui/StatusBadge";
 import Button from "../components/ui/Button";
 import Textarea from "../components/ui/Textarea";
 import { ticketsAPI, getErrorMessage } from "../lib/api";
+import { exportAPI } from "../lib/api"; // kalau perlu
 
 const TicketDetailPage = () => {
   const { ticketId } = useParams();
@@ -15,6 +16,12 @@ const TicketDetailPage = () => {
   const [error, setError] = useState(null);
   const [draftReply, setDraftReply] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  
+  // New States
+  const [isEscalating, setIsEscalating] = useState(false);
+  const [isPriority, setIsPriority] = useState(false);
+  const [showAttachment, setShowAttachment] = useState(false);
+  const [showEscalateModal, setShowEscalateModal] = useState(false);
 
   // Fetch ticket dari API
   useEffect(() => {
@@ -33,6 +40,52 @@ const TicketDetailPage = () => {
     };
     if (ticketId) fetchTicket();
   }, [ticketId]);
+
+  // Tandai prioritas
+  const handleTogglePriority = () => {
+    setIsPriority(!isPriority);
+    // Optional: call API to update severity
+  };
+
+  // Eskalasi
+  const handleEscalate = () => {
+    setShowEscalateModal(true);
+  };
+
+  const confirmEscalate = () => {
+    alert("Tiket berhasil dieskalasi ke Dokter Konsultan (Dr. Amanda, Sp.KK)");
+    setShowEscalateModal(false);
+  };
+
+  // Lihat Lampiran
+  const handleViewAttachment = () => {
+    setShowAttachment(true);
+  };
+
+  // Simpan Draf
+  const handleSaveDraft = async () => {
+    try {
+      // Simpan ke localStorage sebagai "draft"
+      localStorage.setItem(`draft_ticket_${ticket.id}`, draftReply);
+      alert("Draf tersimpan!");
+    } catch (err) {
+      alert("Gagal menyimpan draf");
+    }
+  };
+
+  // Tutup Tiket
+  const handleCloseTicket = async () => {
+    if (!confirm("Yakin menutup tiket ini?")) return;
+    setIsUpdating(true);
+    try {
+      await ticketsAPI.updateStatus(ticket.id, "RESOLVED");
+      navigate("/cs/tickets");
+    } catch (err) {
+      alert(getErrorMessage(err));
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const handleCopyDraft = () => {
     navigator.clipboard.writeText(draftReply);
@@ -103,26 +156,6 @@ const TicketDetailPage = () => {
 
   const displayId = `#TK-${String(ticket.id).padStart(4, "0")}`;
 
-  const timelineEvents = [
-    {
-      title: "Tiket Dibuat",
-      time: new Date(ticket.created_at).toLocaleString("id-ID"),
-      description: `Dibuat oleh ${ticket.assigned_cs || "System"}.`,
-    },
-    {
-      title: "AI Complaint Analysis Selesai",
-      time: "Setelah dibuat",
-      description: "Analisis gejala & rekomendasi selesai diproses.",
-      highlight: true,
-    },
-    {
-      title: `Status saat ini: ${ticket.status}`,
-      time: "Sekarang",
-      description: "Menunggu tindakan dari agen CS.",
-      active: ticket.status === "PROCESSING" || ticket.status === "IN_REVIEW",
-    },
-  ];
-
   const getSeverityBadge = (sev) => {
     if (sev === "High") return "severityHigh";
     if (sev === "Moderate") return "severityModerate";
@@ -190,7 +223,15 @@ const TicketDetailPage = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                variant={isPriority ? "primary" : "secondary"}
+                size="sm"
+                icon="flag"
+                onClick={handleTogglePriority}
+              >
+                {isPriority ? "Prioritas Aktif" : "Tandai Prioritas"}
+              </Button>
               <Button
                 variant="secondary"
                 size="sm"
@@ -287,6 +328,15 @@ const TicketDetailPage = () => {
                     "{ticket.complaint_text}"
                   </p>
                 </div>
+                
+                {/* Tombol Lihat Lampiran */}
+                <button
+                  onClick={handleViewAttachment}
+                  className="mt-2 flex items-center gap-1 px-3 py-1.5 rounded bg-surface-container-highest text-brand-cyan hover:bg-brand-cyan hover:text-on-primary-container transition-all text-label-sm w-fit"
+                >
+                  <span className="material-symbols-outlined text-[14px]">visibility</span>
+                  Lihat Lampiran
+                </button>
               </div>
             </Card>
           </div>
@@ -415,8 +465,14 @@ const TicketDetailPage = () => {
             </div>
 
             <div className="flex items-center gap-2 flex-wrap justify-end">
-              <Button variant="secondary" size="sm" icon="save">
-                Simpan
+              <Button variant="secondary" size="sm" icon="save" onClick={handleSaveDraft}>
+                Simpan Draf
+              </Button>
+              <Button variant="secondary" size="sm" icon="supervisor_account" onClick={handleEscalate}>
+                Eskalasi
+              </Button>
+              <Button variant="secondary" size="sm" icon="close" onClick={handleCloseTicket}>
+                Tutup
               </Button>
               <Button
                 variant="primary"
@@ -435,6 +491,51 @@ const TicketDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal Lampiran */}
+      {showAttachment && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setShowAttachment(false)}>
+          <div className="bg-surface-container rounded-xl p-6 max-w-2xl w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-headline-sm text-primary font-semibold">Lampiran: erythema_pipi_kanan.jpg</h3>
+              <button onClick={() => setShowAttachment(false)} className="text-on-surface-variant hover:text-primary">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="w-full h-64 rounded-lg bg-surface-container-lowest flex items-center justify-center mb-4">
+              <div className="text-center">
+                <span className="material-symbols-outlined text-brand-cyan text-[64px]">image</span>
+                <p className="text-body-sm text-on-surface-variant mt-2">Preview foto kondisi kulit customer</p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" size="sm" onClick={() => setShowAttachment(false)}>
+                Tutup
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Eskalasi */}
+      {showEscalateModal && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setShowEscalateModal(false)}>
+          <div className="bg-surface-container rounded-xl p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-headline-md text-primary font-semibold mb-3">Eskalasi Tiket</h3>
+            <p className="text-body-sm text-on-surface-variant mb-4">
+              Tiket ini akan dieskalasi ke Dokter Konsultan Dermatologi (Dr. Amanda, Sp.KK). Yakin melanjutkan?
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" size="sm" onClick={() => setShowEscalateModal(false)}>
+                Batal
+              </Button>
+              <Button variant="primary" size="sm" icon="check" onClick={confirmEscalate}>
+                Ya, Eskalasi
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 };

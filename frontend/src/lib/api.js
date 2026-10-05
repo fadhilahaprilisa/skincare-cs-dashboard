@@ -125,3 +125,23 @@ export const insightsAPI = {
     return res.data;
   },
 };
+
+export const exportAPI = {
+  downloadTicketsCSV: async () => {
+    const res = await api.get("/api/v1/export/tickets", {
+      responseType: "blob",
+    });
+    return res.data;
+  },
+};
+
+export const downloadBlob = (blob, filename) => {
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};

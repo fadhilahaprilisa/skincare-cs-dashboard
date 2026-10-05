@@ -83,8 +83,7 @@ async def get_all_tickets(
         stmt = stmt.where(Ticket.assigned_cs == current_user.full_name)
 
     result = await db.execute(stmt)
-    tickets = result.scalars().all()
-    return tickets
+    return result.scalars().all()
 
 
 @router.get("/tickets/{ticket_id}", response_model=TicketResponse)

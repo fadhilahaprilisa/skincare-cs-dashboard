@@ -121,6 +121,11 @@ function App() {
           <AdminSettingsPage />
         </ProtectedRoute>
       } />
+      <Route path="/admin/new-complaint" element={
+  <ProtectedRoute allowedRoles={["admin"]}>
+    <InputComplaintPage />
+  </ProtectedRoute>
+} />
 
       {/* ===== DEFAULT REDIRECT ===== */}
       <Route path="/" element={<Navigate to="/login" replace />} />

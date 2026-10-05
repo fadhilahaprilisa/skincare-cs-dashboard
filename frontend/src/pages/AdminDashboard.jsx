@@ -123,24 +123,24 @@ const AdminDashboard = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <select className="appearance-none bg-surface-container hover:bg-surface-container-high text-on-surface text-label-md px-3 py-2 rounded-lg cursor-pointer focus:outline-none">
-              <option>7 Hari Terakhir</option>
-              <option>14 Hari Terakhir</option>
-              <option>Bulan Berjalan</option>
+            <select
+              onChange={(e) => {
+                const value = e.target.value;
+                // Trigger refetch dengan periode berbeda
+                console.log("Filter periode:", value);
+              }}
+              className="appearance-none bg-surface-container hover:bg-surface-container-high text-on-surface text-label-md px-3 py-2 rounded-lg cursor-pointer focus:outline-none"
+            >
+              <option value="7d">7 Hari Terakhir</option>
+              <option value="14d">14 Hari Terakhir</option>
+              <option value="30d">Bulan Berjalan</option>
             </select>
             <button
               onClick={() => navigate("/admin/tickets")}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-headline-sm transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-headline-sm transition-all cursor-pointer"
             >
               <span className="material-symbols-outlined text-[16px]">format_list_bulleted</span>
               Lihat Semua Tiket
-            </button>
-            <button
-              onClick={() => navigate("/cs/new-complaint")}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-brand-cyan text-on-primary-container text-headline-sm shadow-cyan-glow hover:brightness-110 transition-all"
-            >
-              <span className="material-symbols-outlined text-[16px]">add</span>
-              Buat Tiket
             </button>
           </div>
         </div>
@@ -271,7 +271,7 @@ const AdminDashboard = () => {
             </div>
             <button
               onClick={() => navigate("/admin/tickets")}
-              className="px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-brand-cyan text-label-md transition-colors"
+              className="px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-brand-cyan text-label-md transition-colors cursor-pointer"
             >
               Lihat Semua
             </button>
