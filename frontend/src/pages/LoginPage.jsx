@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import Logo from "../components/ui/Logo";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
+import AccentHeading from "../components/ui/AccentHeading";
 import { useAuth } from "../contexts/AuthContext";
+import { Shield, MessageSquare, Sparkles, Eye, EyeOff, ShieldCheck } from "lucide-react";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -32,7 +34,6 @@ const LoginPage = () => {
     e.preventDefault();
     setLocalError(null);
 
-    // Validasi input dasar
     if (!email.trim() || !password.trim()) {
       setLocalError("Email dan password wajib diisi");
       return;
@@ -40,8 +41,6 @@ const LoginPage = () => {
 
     try {
       const user = await login(email, password, role);
-
-      // Redirect berdasarkan role user yang dikembalikan backend
       const from = location.state?.from?.pathname;
       const defaultPath = user.role === "admin" ? "/admin/dashboard" : "/cs/dashboard";
       navigate(from || defaultPath, { replace: true });
@@ -53,203 +52,239 @@ const LoginPage = () => {
   const displayError = localError || authError;
 
   return (
-    <main className="w-full min-h-screen flex flex-col lg:flex-row bg-ambient-radial">
-      {/* ===== LEFT: BRANDING SHOWCASE ===== */}
-      <section className="w-full lg:w-1/2 min-h-screen flex flex-col justify-between p-8 sm:p-12 lg:p-16 border-b lg:border-b-0 lg:border-r border-outline-variant/40 relative overflow-hidden">
-        <div aria-hidden="true" className="absolute -top-32 -left-32 w-96 h-96 bg-brand-violet/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div aria-hidden="true" className="absolute top-1/2 left-1/3 w-[500px] h-[500px] bg-brand-cyan/5 rounded-full blur-[120px] pointer-events-none"></div>
+    <main className="w-full h-screen h-[100dvh] flex flex-col lg:flex-row bg-[#FDFBF9] text-[#1E1B4B] selection:bg-[#EC4899]/20 selection:text-[#1E1B4B] relative overflow-hidden font-sans">
+      {/* Background Pastel Mesh Orbs */}
+      <div 
+        className="absolute -top-32 -left-32 w-[600px] h-[600px] bg-gradient-to-br from-[#E0F2FE]/80 via-[#FCE7F3]/70 to-[#E9D5FF]/60 rounded-full blur-[100px] pointer-events-none"
+        aria-hidden="true"
+      />
+      <div 
+        className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-tl from-[#E9D5FF]/50 to-[#FCE7F3]/50 rounded-full blur-[90px] pointer-events-none"
+        aria-hidden="true"
+      />
 
-        <header className="relative z-10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Logo size="lg" />
+      {/* ===== LEFT: BRANDING SHOWCASE ===== */}
+      <section className="w-full lg:w-1/2 h-full flex flex-col justify-between p-6 sm:p-8 lg:p-10 border-b lg:border-b-0 lg:border-r border-slate-200/80 relative z-10 bg-gradient-to-b from-[#FFF0F5]/40 via-transparent to-transparent overflow-hidden">
+        <header className="flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="relative">
+              <Logo size="md" />
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-slate-900"></span>
+            </div>
             <div>
-              <span className="text-headline-sm font-bold tracking-tight text-primary block leading-none">Lumière Skin</span>
-              <span className="text-label-sm tracking-widest text-primary-fixed-dim font-semibold uppercase mt-1 block">
+              <span className="font-display text-base font-bold tracking-tight text-[#1E1B4B] block leading-none">
+                Lumière Skin
+              </span>
+              <span className="text-[10px] tracking-[0.2em] text-[#7C5CFF] font-semibold uppercase mt-0.5 block">
                 AI Complaint Intelligence
               </span>
             </div>
-          </div>
-          <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container border border-outline-variant text-label-sm text-on-surface-variant">
-            <span className="w-2 h-2 rounded-full bg-brand-cyan animate-pulse"></span>
-            <span>Intelligence Platform v2.4</span>
-          </div>
+          </Link>
         </header>
 
-        <div className="my-10 lg:my-0 relative z-10">
-          <span className="inline-block text-label-sm font-bold tracking-[0.2em] text-brand-cyan uppercase mb-3">
-            AI-ASSISTED COMPLAINT WORKSPACE
-          </span>
-          <h1 className="text-headline-lg-mobile sm:text-headline-lg lg:text-display-lg font-bold text-primary tracking-tight leading-tight">
-            Smarter Customer Care with AI
-          </h1>
-          <p className="text-body-lg text-on-surface-variant max-w-lg mt-4 leading-relaxed">
-            Kelola keluhan pelanggan, pahami pola masalah, dan bantu tim CS memberikan respons cepat, tepat sasaran, dan solutif.
-          </p>
+        <div className="my-auto py-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 border border-slate-200 text-[10px] font-semibold text-slate-800 uppercase tracking-wider mb-3 shadow-xs">
+            <Sparkles className="w-3.5 h-3.5 text-slate-900" />
+            <span>AI-Assisted Complaint Workspace</span>
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-8 pt-6 border-t border-outline-variant/40 relative">
-            <div className="p-3.5 rounded-xl bg-surface-container/80 border border-outline-variant backdrop-blur-sm">
-              <div className="flex items-center justify-between text-label-sm text-on-surface-variant mb-1.5">
-                <span className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-brand-cyan text-[14px]">bolt</span>
+          <AccentHeading
+            roman="Smarter Customer Care,"
+            italic="Powered by Skincare AI"
+            subtitle="Kelola keluhan pelanggan, pahami pola formulasi produk, dan bantu tim CS memberikan respons cepat, tepat sasaran, dan solutif."
+            align="left"
+            size="md"
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 pt-4 border-t border-slate-200/80">
+            {/* Box 1: AI Assistant */}
+            <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-800">
+                    <Sparkles className="w-3.5 h-3.5 text-slate-900" />
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-[9px] border border-emerald-200">
+                    ACTIVE
+                  </span>
+                </div>
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">
                   AI Assistant
                 </span>
-                <span className="px-1.5 py-0.5 rounded bg-[#2ED573]/10 text-[#2ED573] font-semibold text-[9px] border border-[#2ED573]/30">
-                  ACTIVE
-                </span>
+                <h4 className="text-xs font-bold text-slate-900 leading-snug">
+                  Triase Keluhan Otomatis
+                </h4>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                  Deteksi kategori & draf respon otomatis
+                </p>
               </div>
-              <p className="text-headline-sm font-semibold text-primary leading-tight mt-1">Triase Keluhan Otomatis</p>
-              <p className="text-label-sm text-on-surface-variant mt-1">Deteksi kategori & draf respon otomatis</p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-surface-container/80 border border-outline-variant backdrop-blur-sm">
-              <div className="flex items-center justify-between text-label-sm text-on-surface-variant mb-1.5">
-                <span className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[#FFC048] text-[14px]">warning</span>
+            {/* Box 2: Deteksi Tren */}
+            <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-800">
+                    <Shield className="w-3.5 h-3.5 text-slate-900" />
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold text-[9px] border border-slate-200">
+                    BATCH SKU
+                  </span>
+                </div>
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">
                   Deteksi Tren
                 </span>
-                <span className="px-1.5 py-0.5 rounded bg-brand-cyan/10 text-brand-cyan font-semibold text-[9px] border border-brand-cyan/30">
-                  POLA PRODUK
-                </span>
+                <h4 className="text-xs font-bold text-slate-900 leading-snug">
+                  Analisis Pola Produk
+                </h4>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                  Identifikasi lonjakan tiket batch kemasan
+                </p>
               </div>
-              <p className="text-headline-sm font-semibold text-primary leading-tight mt-1">Analisis Pola Produk</p>
-              <p className="text-label-sm text-on-surface-variant mt-1">Identifikasi lonjakan tiket SKU & kemasan</p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-surface-container/80 border border-outline-variant backdrop-blur-sm">
-              <div className="flex items-center justify-between text-label-sm text-on-surface-variant mb-1.5">
-                <span className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-brand-cyan text-[14px]">schedule</span>
-                  Resolusi Cepat
+            {/* Box 3: Efisiensi SLA */}
+            <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200/80 flex items-center justify-center text-slate-800">
+                    <ShieldCheck className="w-3.5 h-3.5 text-slate-900" />
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold text-[9px] border border-slate-200">
+                    82% TUNTAS
+                  </span>
+                </div>
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-0.5">
+                  Efisiensi SLA
                 </span>
-                <span className="px-1.5 py-0.5 rounded bg-brand-cyan/10 text-brand-cyan font-bold text-[9px] border border-brand-cyan/30">
-                  EFISIENSI SLA
-                </span>
+                <div className="flex items-baseline gap-1 my-0.5">
+                  <span className="text-xl font-bold tracking-tight text-slate-900">
+                    45
+                  </span>
+                  <span className="text-[11px] text-slate-500 font-medium">Menit</span>
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Rata-rata Penanganan Tiket
+                </p>
               </div>
-              <p className="text-headline-md font-bold text-primary tracking-tight">4.5 <span className="text-body-sm font-normal text-on-surface-variant">Jam</span></p>
-              <p className="text-label-sm text-on-surface-variant mt-1">Rata-rata Penanganan Tiket</p>
             </div>
           </div>
         </div>
 
-        <footer className="relative z-10 pt-6 border-t border-outline-variant/40 flex flex-wrap items-center gap-y-3 gap-x-6 text-label-sm text-on-surface-variant">
+        <footer className="pt-3 border-t border-slate-200/70 flex flex-wrap items-center gap-y-2 gap-x-5 text-[11px] text-[#64748B]">
           <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-brand-cyan text-[16px]">shield</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#7C5CFF]"></span>
             Enkripsi Data SSL/TLS
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-brand-cyan text-[16px]">description</span>
-            ISO/IEC 27001 Ready
+            <span className="w-1.5 h-1.5 rounded-full bg-[#EC4899]"></span>
+            BPOM SOP Standard
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-brand-cyan text-[16px]">forum</span>
-            Omnichannel WA & E-Commerce
+            <span className="w-1.5 h-1.5 rounded-full bg-[#06B6D4]"></span>
+            Human-in-the-Loop Safe
           </div>
         </footer>
       </section>
 
       {/* ===== RIGHT: AUTH FORM ===== */}
-      <section className="w-full lg:w-1/2 min-h-screen flex items-center justify-center p-6 sm:p-10 lg:p-14 bg-surface relative">
-        <div aria-hidden="true" className="absolute w-80 h-80 bg-brand-cyan/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-        <div className="w-full max-w-md p-7 sm:p-9 rounded-2xl bg-surface-container border border-outline-variant shadow-2xl relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <span className="px-2.5 py-1 rounded bg-surface-container-high border border-outline-variant text-label-sm font-bold tracking-wider text-brand-cyan uppercase">
+      <section className="w-full lg:w-1/2 h-full flex items-center justify-center p-4 sm:p-6 lg:p-8 relative z-10 overflow-hidden">
+        <div className="w-full max-w-[420px] p-5 md:p-6 rounded-3xl bg-white/90 backdrop-blur-2xl border border-white shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
+          <div className="flex items-center justify-between mb-2">
+            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-semibold tracking-wider text-slate-700 uppercase">
               Portal Internal
             </span>
-            <div className="flex items-center gap-1.5 text-label-sm text-on-surface-variant">
-              <span className="w-2 h-2 rounded-full bg-[#2ED573]"></span>
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_#10B981]"></span>
               <span>SSO Active</span>
             </div>
           </div>
 
-          <h2 className="text-headline-lg font-bold text-primary tracking-tight">Welcome back</h2>
-          <p className="text-body-sm text-on-surface-variant mt-1 mb-6">
+          <h2 className="text-2xl font-serif font-bold text-[#1E1B4B] tracking-tight mb-0.5">
+            Selamat Datang
+          </h2>
+          <p className="text-xs text-[#64748B] mb-3">
             Masuk ke ekosistem kecerdasan layanan Lumière Skin
           </p>
 
           {/* Error Alert */}
           {displayError && (
-            <div className="p-3 mb-4 rounded-lg bg-[#FF4D4D]/10 border border-[#FF4D4D]/30 flex items-start gap-2">
-              <span className="material-symbols-outlined text-[#FF4D4D] text-[18px] shrink-0 mt-0.5">
-                error
-              </span>
-              <span className="text-body-sm text-[#FF4D4D]">{displayError}</span>
+            <div className="p-2.5 mb-2.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2 text-red-600 text-xs">
+              <span className="material-symbols-outlined text-[16px] shrink-0 mt-0.5">error</span>
+              <span>{displayError}</span>
             </div>
           )}
 
-          <div className="mb-4">
-            <label className="block text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider mb-2">
+          {/* Role Switcher */}
+          <div className="mb-2.5">
+            <label className="block text-[10px] font-semibold text-[#64748B] uppercase tracking-wider mb-1">
               Pilih Peran Akun
             </label>
-            <div className="grid grid-cols-2 gap-2 p-1 bg-surface-container-lowest rounded-xl border border-outline-variant">
+            <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100/80 rounded-xl border border-slate-200/80">
               <button
                 type="button"
                 onClick={() => handleRoleChange("admin")}
-                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-label-md font-semibold transition-all ${
+                className={`flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   role === "admin"
-                    ? "bg-surface-container-high text-primary border border-outline-variant/80 shadow"
-                    : "text-on-surface-variant hover:text-primary"
+                    ? "bg-white text-slate-900 shadow-xs border border-slate-200"
+                    : "text-slate-500 hover:text-slate-900"
                 }`}
               >
-                <span className="material-symbols-outlined text-brand-cyan text-[16px]">shield</span>
-                Admin
+                <Shield className="w-3.5 h-3.5 text-slate-800" />
+                <span>Admin / Lead</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleRoleChange("cs")}
-                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-label-md font-semibold transition-all ${
+                className={`flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   role === "cs"
-                    ? "bg-surface-container-high text-primary border border-outline-variant/80 shadow"
-                    : "text-on-surface-variant hover:text-primary"
+                    ? "bg-white text-slate-900 shadow-xs border border-slate-200"
+                    : "text-slate-500 hover:text-slate-900"
                 }`}
               >
-                <span className="material-symbols-outlined text-brand-violet text-[16px]">forum</span>
-                CS Agent
+                <MessageSquare className="w-3.5 h-3.5 text-slate-800" />
+                <span>CS Agent</span>
               </button>
             </div>
           </div>
 
-          <div className="p-3.5 mb-5 rounded-xl bg-surface-container-high border border-outline-variant">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-surface-container-lowest text-brand-cyan border border-outline-variant mt-0.5">
-                <span className="material-symbols-outlined text-[16px]">
-                  {role === "admin" ? "shield" : "forum"}
-                </span>
+          <div className="p-2.5 mb-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-white text-slate-900 border border-slate-200 flex items-center justify-center shrink-0">
+                {role === "admin" ? <Shield className="w-3.5 h-3.5" /> : <MessageSquare className="w-3.5 h-3.5" />}
               </div>
               <div>
-                <p className="text-label-md font-semibold text-primary">
-                  Login sebagai {role === "admin" ? "Admin" : "CS Agent"}
+                <p className="font-semibold text-slate-900 text-xs leading-none">
+                  Login sebagai {role === "admin" ? "Brand Admin & Lead" : "CS Agent Support"}
                 </p>
-                <p className="text-label-sm text-on-surface-variant mt-0.5 leading-snug">
+                <p className="text-slate-500 text-[11px] mt-0.5 leading-snug">
                   {role === "admin"
-                    ? "Akses pemantauan keluhan pelanggan, analitik kategori komplain, eskalasi prioritas, dan konfigurasi asisten respons."
-                    : "Kelola antrean tiket, triase komplain bot otomatis, dan beri respons presisi dengan saran AI."}
+                    ? "Akses monitoring analitik komplain & pola batch formula."
+                    : "Kelola antrean tiket, triase komplain AI, dan respon SOP."}
                 </p>
-                <span className="inline-block mt-2 text-label-sm font-medium text-brand-cyan">
-                  Target: {role === "admin" ? "Dashboard Manajemen Operasional & AI" : "Dashboard Layanan & Triase CS"}
-                </span>
               </div>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Email Perusahaan"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="nama@lumiereskin.id"
-              icon="mail"
-              disabled={isLoading}
-              required
-            />
+          <form onSubmit={handleSubmit} className="space-y-2.5">
+            <div>
+              <label className="text-[11px] font-semibold text-slate-800 block mb-1">
+                Email Perusahaan
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="nama@lumiereskin.id"
+                disabled={isLoading}
+                required
+                className="w-full bg-white border border-slate-200 rounded-xl py-2 px-3.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900/10 transition-all"
+              />
+            </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-label-md text-on-surface">Kata Sandi</label>
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] font-semibold text-slate-800">Kata Sandi</label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px] pointer-events-none">
-                  lock
-                </span>
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
@@ -257,74 +292,51 @@ const LoginPage = () => {
                   placeholder="••••••••"
                   required
                   disabled={isLoading}
-                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2.5 pl-10 pr-10 text-body-md text-on-surface focus:outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/20 transition-all disabled:opacity-60"
+                  className="w-full bg-white border border-slate-200 rounded-xl py-2 pl-3.5 pr-10 text-xs text-slate-900 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900/10 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
                   tabIndex={-1}
                 >
-                  <span className="material-symbols-outlined text-[18px]">
-                    {showPassword ? "visibility_off" : "visibility"}
-                  </span>
+                  {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-1">
-              <label className="flex items-center gap-2 cursor-pointer select-none">
+            <div className="flex items-center justify-between pt-0.5 text-[11px]">
+              <label className="flex items-center gap-1.5 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   defaultChecked
-                  className="w-4 h-4 rounded bg-surface-container-lowest border-outline-variant text-brand-cyan focus:ring-0"
+                  className="w-3.5 h-3.5 rounded border-slate-300 text-slate-900 focus:ring-0"
                 />
-                <span className="text-label-sm text-on-surface-variant">Ingat sesi saya (7 Hari)</span>
+                <span className="text-slate-500">Ingat sesi saya (7 Hari)</span>
               </label>
-              <a className="text-label-sm text-on-surface-variant hover:text-brand-cyan transition-colors" href="#">
+              <a className="text-slate-700 hover:underline font-medium" href="#">
                 Lupa kata sandi?
               </a>
             </div>
 
-            <Button
+            <button
               type="submit"
-              variant="primary"
-              size="lg"
-              icon={isLoading ? "progress_activity" : "arrow_forward"}
-              className="w-full mt-2"
               disabled={isLoading}
+              className="w-full bg-[#141414] hover:bg-[#2B2B2B] active:bg-[#0A0A0A] text-white rounded-full py-2.5 text-xs sm:text-sm font-medium transition-colors cursor-pointer mt-1 shadow-none disabled:bg-slate-100 disabled:text-slate-400"
             >
               {isLoading ? "Memproses..." : `Masuk sebagai ${role === "admin" ? "Admin" : "CS Agent"}`}
-            </Button>
+            </button>
           </form>
 
           {/* Demo Credentials Hint */}
-          <div className="mt-4 p-3 rounded-lg bg-brand-cyan/5 border border-brand-cyan/20">
+          <div className="mt-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px]">
             <div className="flex items-start gap-2">
-              <span className="material-symbols-outlined text-brand-cyan text-[16px] shrink-0 mt-0.5">
-                info
-              </span>
-              <div className="text-label-sm text-on-surface-variant leading-relaxed">
-                <strong className="text-brand-cyan">Demo Credentials:</strong>
-                <br />
-                Admin: <code className="text-primary">admin@lumiereskin.id</code> / <code className="text-primary">admin123</code>
-                <br />
-                CS: <code className="text-primary">sarah@lumiereskin.id</code> / <code className="text-primary">cs123</code>
+              <Sparkles className="w-3.5 h-3.5 text-slate-700 shrink-0 mt-0.5" />
+              <div className="text-slate-600 leading-snug">
+                <strong className="text-slate-900 font-semibold">Kredensial Demo:</strong>{" "}
+                Admin: <code className="text-slate-900 font-mono">admin@lumiereskin.id</code> / <code className="text-slate-900 font-mono">admin123</code> • CS: <code className="text-slate-900 font-mono">sarah@lumiereskin.id</code> / <code className="text-slate-900 font-mono">cs123</code>
               </div>
             </div>
-          </div>
-
-          <div className="mt-6 pt-5 border-t border-outline-variant/40 text-center space-y-2">
-            <div className="flex items-center justify-center gap-1.5 text-label-sm text-on-surface-variant">
-              <span className="material-symbols-outlined text-brand-cyan text-[14px]">shield</span>
-              <span>Lumière Complaint Intelligence Platform • Akses Terotentikasi</span>
-            </div>
-            <p className="text-label-sm text-on-surface-variant/60">
-              Memerlukan akses tiket atau otorisasi tim baru?{" "}
-              <a className="text-brand-cyan hover:underline font-medium" href="#">
-                Hubungi IT Security & Lead CS
-              </a>
-            </p>
           </div>
         </div>
       </section>

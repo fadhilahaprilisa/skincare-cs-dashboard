@@ -6,7 +6,15 @@ import StatusBadge from "../components/ui/StatusBadge";
 import Button from "../components/ui/Button";
 import Textarea from "../components/ui/Textarea";
 import { ticketsAPI, getErrorMessage } from "../lib/api";
-import { exportAPI } from "../lib/api"; // kalau perlu
+import { exportAPI } from "../lib/api";
+import productSerum from "../assets/product_serum.jpg";
+import productCleanser from "../assets/product_cleanser.jpg";
+
+const getProductThumbnail = (name = "") => {
+  const p = (name || "").toLowerCase();
+  if (p.includes("cleanser") || p.includes("wash") || p.includes("cream")) return productCleanser;
+  return productSerum;
+};
 
 const TicketDetailPage = () => {
   const { ticketId } = useParams();
@@ -175,72 +183,68 @@ const TicketDetailPage = () => {
       topbarProps={{
         title: `Detail Tiket ${displayId}`,
         subtitle: "Review keluhan customer dan tindakan penanganan formula.",
+        showSearch: false,
         showInputButton: false,
       }}
     >
       <div className="p-6 pb-28 space-y-6">
-        {/* Header */}
-        <div className="flex flex-col gap-2">
-          <nav className="flex items-center gap-1 text-label-md text-on-surface-variant">
-            <button
-              onClick={() => navigate("/cs/dashboard")}
-              className="hover:text-brand-cyan transition-colors"
-            >
-              Dashboard
-            </button>
-            <span className="material-symbols-outlined text-[14px] opacity-50">
-              chevron_right
-            </span>
-            <button
-              onClick={() => navigate("/cs/tickets")}
-              className="hover:text-brand-cyan transition-colors"
-            >
-              My Tickets
-            </button>
-            <span className="material-symbols-outlined text-[14px] opacity-50">
-              chevron_right
-            </span>
-            <span className="text-primary-fixed-dim text-code-sm">{displayId}</span>
-          </nav>
-
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <div className="flex flex-col">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-headline-lg text-primary tracking-tight">
-                  Detail Tiket {displayId}
-                </h1>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <StatusBadge
-                    type={getStatusBadge(ticket.status)}
-                    label={ticket.status}
-                    pulse={ticket.status === "PROCESSING" || ticket.status === "IN_REVIEW"}
-                  />
-                  <StatusBadge
-                    type={getSeverityBadge(ticket.severity)}
-                    label={`${ticket.severity || "N/A"} Severity`}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 flex-wrap">
-              <Button
-                variant={isPriority ? "primary" : "secondary"}
-                size="sm"
-                icon="flag"
-                onClick={handleTogglePriority}
+        {/* Page Toolbar (Breadcrumbs, Status Badges & Actions) */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+          <div className="flex items-center gap-3 flex-wrap">
+            <nav className="flex items-center gap-1.5 text-xs text-slate-400">
+              <button
+                onClick={() => navigate("/cs/dashboard")}
+                className="hover:text-slate-900 transition-colors cursor-pointer"
               >
-                {isPriority ? "Prioritas Aktif" : "Tandai Prioritas"}
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                icon="arrow_back"
-                onClick={() => navigate(-1)}
+                Dashboard
+              </button>
+              <span className="material-symbols-outlined text-[14px]">
+                chevron_right
+              </span>
+              <button
+                onClick={() => navigate("/cs/tickets")}
+                className="hover:text-slate-900 transition-colors cursor-pointer"
               >
-                Kembali
-              </Button>
+                My Tickets
+              </button>
+              <span className="material-symbols-outlined text-[14px]">
+                chevron_right
+              </span>
+              <span className="text-slate-900 font-semibold">{displayId}</span>
+            </nav>
+
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
+            <div className="flex items-center gap-1.5">
+              <StatusBadge
+                type={getStatusBadge(ticket.status)}
+                label={ticket.status}
+                pulse={ticket.status === "PROCESSING" || ticket.status === "IN_REVIEW"}
+              />
+              <StatusBadge
+                type={getSeverityBadge(ticket.severity)}
+                label={`${ticket.severity || "N/A"} Severity`}
+              />
             </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant={isPriority ? "primary" : "secondary"}
+              size="sm"
+              icon="flag"
+              onClick={handleTogglePriority}
+            >
+              {isPriority ? "Prioritas Aktif" : "Tandai Prioritas"}
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              icon="arrow_back"
+              onClick={() => navigate(-1)}
+            >
+              Kembali
+            </Button>
           </div>
         </div>
 
@@ -248,83 +252,92 @@ const TicketDetailPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* LEFT: Customer & Complaint */}
           <div className="lg:col-span-5 flex flex-col gap-6">
-            <Card tier="base" className="overflow-hidden">
-              <div className="p-4 bg-surface-container flex items-center justify-between">
+            <div className="bg-white border border-slate-200/80 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] overflow-hidden">
+              <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-brand-cyan text-[18px]">
+                  <span className="material-symbols-outlined text-slate-700 text-[18px]">
                     person_pin
                   </span>
-                  <h3 className="text-headline-sm text-primary font-semibold">
+                  <h3 className="text-base font-bold text-slate-900 tracking-tight">
                     Informasi Customer
                   </h3>
                 </div>
               </div>
 
               <div className="p-4 flex flex-col gap-4">
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-surface-container-lowest">
-                  <div className="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-headline-md font-bold text-brand-cyan">
+                <div className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                  <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-sm font-bold text-slate-800">
                     {getInitials(ticket.customer_name)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="text-headline-sm text-primary font-bold truncate block">
+                    <span className="text-sm font-bold text-slate-900 truncate block">
                       {ticket.customer_name}
                     </span>
-                    <span className="text-body-sm text-on-surface-variant">
+                    <span className="text-xs text-slate-500">
                       Assigned: {ticket.assigned_cs || "-"}
                     </span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 text-body-sm">
-                  <div className="p-3 rounded-lg bg-surface-container">
-                    <span className="text-label-sm text-on-surface-variant uppercase block mb-1">
-                      Produk
-                    </span>
-                    <span className="text-body-sm text-brand-cyan font-medium">
-                      {ticket.product || "-"}
-                    </span>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                      <img
+                        src={getProductThumbnail(ticket.product)}
+                        alt={ticket.product || "Skincare Product"}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
+                        Produk
+                      </span>
+                      <span className="text-xs font-semibold text-slate-900 truncate block">
+                        {ticket.product || "-"}
+                      </span>
+                    </div>
                   </div>
-                  <div className="p-3 rounded-lg bg-surface-container">
-                    <span className="text-label-sm text-on-surface-variant uppercase block mb-1">
-                      Batch
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-center">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block mb-0.5">
+                      Batch Code
                     </span>
-                    <span className="text-code-sm bg-surface-container-highest px-1.5 py-0.5 rounded text-brand-cyan font-bold">
+                    <span className="text-xs bg-slate-100 px-2 py-0.5 rounded-full text-slate-800 font-mono font-bold w-fit border border-slate-200">
                       {ticket.product_batch || "-"}
                     </span>
                   </div>
-                  <div className="p-3 rounded-lg bg-surface-container col-span-2">
-                    <span className="text-label-sm text-on-surface-variant uppercase block mb-1">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 col-span-2">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block mb-0.5">
                       Kategori
                     </span>
-                    <span className="text-body-sm text-[#FFC048] font-semibold">
+                    <span className="text-xs text-amber-700 font-semibold">
                       {ticket.category || "-"}
                     </span>
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
 
-            <Card tier="base" className="overflow-hidden">
-              <div className="p-4 bg-surface-container flex items-center justify-between">
+            <div className="bg-white border border-slate-200/80 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] overflow-hidden">
+              <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-brand-cyan text-[18px]">
+                  <span className="material-symbols-outlined text-slate-700 text-[18px]">
                     record_voice_over
                   </span>
-                  <h3 className="text-headline-sm text-primary font-semibold">
+                  <h3 className="text-base font-bold text-slate-900 tracking-tight">
                     Keluhan Customer
                   </h3>
                 </div>
-                <span className="text-label-sm text-on-surface-variant">
+                <span className="text-xs text-slate-400">
                   {new Date(ticket.created_at).toLocaleDateString("id-ID")}
                 </span>
               </div>
 
               <div className="p-4 flex flex-col gap-4">
-                <div className="relative p-4 rounded-xl bg-surface-container-lowest shadow-inner">
-                  <span className="material-symbols-outlined absolute top-2 right-3 text-[32px] text-surface-container-highest opacity-40 select-none pointer-events-none">
+                <div className="relative p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+                  <span className="material-symbols-outlined absolute top-2 right-3 text-[32px] text-slate-300 opacity-60 select-none pointer-events-none">
                     format_quote
                   </span>
-                  <p className="text-body-lg text-on-surface italic font-medium leading-relaxed pr-8">
+                  <p className="text-xs text-slate-900 italic font-medium leading-relaxed pr-8">
                     "{ticket.complaint_text}"
                   </p>
                 </div>
@@ -332,25 +345,25 @@ const TicketDetailPage = () => {
                 {/* Tombol Lihat Lampiran */}
                 <button
                   onClick={handleViewAttachment}
-                  className="mt-2 flex items-center gap-1 px-3 py-1.5 rounded bg-surface-container-highest text-brand-cyan hover:bg-brand-cyan hover:text-on-primary-container transition-all text-label-sm w-fit"
+                  className="mt-1 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-800 hover:bg-slate-200 transition-all text-xs font-medium w-fit cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[14px]">visibility</span>
                   Lihat Lampiran
                 </button>
               </div>
-            </Card>
+            </div>
           </div>
 
           {/* RIGHT: AI Analysis */}
           <div className="lg:col-span-7 flex flex-col gap-6">
             {ticket.ai_analysis && (
-              <Card tier="base" className="overflow-hidden" glow>
-                <div className="p-4 bg-surface-container flex items-center justify-between">
+              <div className="bg-white border border-slate-200/80 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] overflow-hidden">
+                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-brand-cyan text-[20px] animate-pulse">
+                    <span className="material-symbols-outlined text-slate-800 text-[20px]">
                       neurology
                     </span>
-                    <h3 className="text-headline-sm text-primary font-semibold">
+                    <h3 className="text-base font-bold text-slate-900 tracking-tight">
                       AI Analysis Summary
                     </h3>
                   </div>
@@ -363,35 +376,39 @@ const TicketDetailPage = () => {
                     >
                       Buka Analysis Lengkap
                     </Button>
-                    <StatusBadge type="aiAnalyzed" label="Human review required" />
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                      Human review required
+                    </span>
                   </div>
                 </div>
 
                 <div className="p-5 flex flex-col gap-4">
-                  <div className="p-4 rounded-lg bg-surface-container-lowest">
-                    <span className="text-label-sm text-on-surface-variant uppercase block mb-2">
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+                    <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block mb-2">
                       Analisis
                     </span>
-                    <p className="text-body-md text-on-surface whitespace-pre-wrap">
+                    <p className="text-xs text-slate-800 leading-relaxed whitespace-pre-wrap">
                       {ticket.ai_analysis}
                     </p>
                   </div>
                 </div>
-              </Card>
+              </div>
             )}
 
             {ticket.ai_draft_reply && (
-              <Card tier="base" className="overflow-hidden">
-                <div className="p-4 bg-surface-container flex items-center justify-between">
+              <div className="bg-white border border-slate-200/80 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] overflow-hidden">
+                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-brand-cyan text-[20px]">
+                    <span className="material-symbols-outlined text-slate-800 text-[20px]">
                       smart_toy
                     </span>
-                    <h3 className="text-headline-sm text-primary font-semibold">
+                    <h3 className="text-base font-bold text-slate-900 tracking-tight">
                       AI Suggested Response
                     </h3>
                   </div>
-                  <StatusBadge type="processing" label="Bahasa Indonesia" />
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                    Bahasa Indonesia
+                  </span>
                 </div>
 
                 <div className="p-5 flex flex-col gap-4">
@@ -401,9 +418,9 @@ const TicketDetailPage = () => {
                     rows={8}
                   />
                   <div className="flex items-center justify-between flex-wrap gap-3">
-                    <div className="flex items-center gap-2 text-[#2ED573]">
+                    <div className="flex items-center gap-2 text-emerald-600">
                       <span className="material-symbols-outlined text-[16px]">verified</span>
-                      <span className="text-body-sm text-on-surface-variant">
+                      <span className="text-xs text-slate-600">
                         Lolos uji kepatuhan klaim non-medis
                       </span>
                     </div>
@@ -419,18 +436,18 @@ const TicketDetailPage = () => {
                     </div>
                   </div>
                 </div>
-              </Card>
+              </div>
             )}
 
             {!ticket.ai_analysis && !ticket.ai_draft_reply && (
-              <Card tier="base" className="p-8 text-center">
-                <span className="material-symbols-outlined text-[#FFC048] text-[48px] mb-3">
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-8 text-center shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)]">
+                <span className="material-symbols-outlined text-amber-500 text-[48px] mb-3">
                   pending
                 </span>
-                <h3 className="text-headline-md text-primary font-bold mb-2">
+                <h3 className="text-base font-bold text-slate-900 mb-2">
                   AI Analysis Sedang Diproses
                 </h3>
-                <p className="text-body-sm text-on-surface-variant">
+                <p className="text-xs text-slate-500">
                   Sistem sedang menganalisis keluhan ini. Refresh dalam beberapa detik.
                 </p>
                 <Button
@@ -442,23 +459,23 @@ const TicketDetailPage = () => {
                 >
                   Refresh
                 </Button>
-              </Card>
+              </div>
             )}
           </div>
         </div>
 
         {/* Bottom Action Bar */}
-        <div className="fixed bottom-0 left-72 right-0 bg-surface-container-lowest/95 backdrop-blur-md px-6 py-3 z-40 shadow-[0_-4px_24px_rgba(0,0,0,0.5)] border-t border-outline-variant/30">
+        <div className="fixed bottom-0 left-72 right-0 bg-white/95 backdrop-blur-md px-6 py-3 z-40 shadow-[0_-4px_24px_rgba(15,23,42,0.06)] border-t border-slate-200/80">
           <div className="flex flex-col md:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-brand-cyan text-[22px]">
+              <span className="material-symbols-outlined text-slate-700 text-[22px]">
                 verified_user
               </span>
               <div className="flex flex-col">
-                <span className="text-label-sm text-brand-cyan font-bold tracking-wide uppercase">
+                <span className="text-xs text-slate-900 font-bold tracking-wide uppercase">
                   Human-in-the-Loop Protocol
                 </span>
-                <span className="text-body-sm text-on-surface-variant">
+                <span className="text-xs text-slate-500">
                   AI menyusun draf. Keputusan akhir tetap di tangan CS.
                 </span>
               </div>
@@ -494,18 +511,18 @@ const TicketDetailPage = () => {
 
       {/* Modal Lampiran */}
       {showAttachment && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setShowAttachment(false)}>
-          <div className="bg-surface-container rounded-xl p-6 max-w-2xl w-full" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4" onClick={() => setShowAttachment(false)}>
+          <div className="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-2xl border border-slate-200" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-headline-sm text-primary font-semibold">Lampiran: erythema_pipi_kanan.jpg</h3>
-              <button onClick={() => setShowAttachment(false)} className="text-on-surface-variant hover:text-primary">
+              <h3 className="text-base font-bold text-slate-900">Lampiran: erythema_pipi_kanan.jpg</h3>
+              <button onClick={() => setShowAttachment(false)} className="text-slate-400 hover:text-slate-700 cursor-pointer">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <div className="w-full h-64 rounded-lg bg-surface-container-lowest flex items-center justify-center mb-4">
+            <div className="w-full h-64 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center mb-4">
               <div className="text-center">
-                <span className="material-symbols-outlined text-brand-cyan text-[64px]">image</span>
-                <p className="text-body-sm text-on-surface-variant mt-2">Preview foto kondisi kulit customer</p>
+                <span className="material-symbols-outlined text-slate-400 text-[64px]">image</span>
+                <p className="text-xs text-slate-500 mt-2">Preview foto kondisi kulit customer</p>
               </div>
             </div>
             <div className="flex justify-end gap-2">
@@ -519,10 +536,10 @@ const TicketDetailPage = () => {
 
       {/* Modal Eskalasi */}
       {showEscalateModal && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setShowEscalateModal(false)}>
-          <div className="bg-surface-container rounded-xl p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-headline-md text-primary font-semibold mb-3">Eskalasi Tiket</h3>
-            <p className="text-body-sm text-on-surface-variant mb-4">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4" onClick={() => setShowEscalateModal(false)}>
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-200" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-base font-bold text-slate-900 mb-2">Eskalasi Tiket</h3>
+            <p className="text-xs text-slate-500 mb-4">
               Tiket ini akan dieskalasi ke Dokter Konsultan Dermatologi (Dr. Amanda, Sp.KK). Yakin melanjutkan?
             </p>
             <div className="flex justify-end gap-2">

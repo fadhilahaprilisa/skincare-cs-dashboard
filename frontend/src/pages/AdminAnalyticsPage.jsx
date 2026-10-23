@@ -109,34 +109,26 @@ const AdminAnalyticsPage = () => {
       }}
     >
       <div className="p-6 space-y-6">
-        {/* ===== PAGE HEADER ===== */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <nav className="flex items-center gap-1 text-label-sm uppercase tracking-wider text-on-surface-variant">
-              <button
-                onClick={() => navigate("/admin/dashboard")}
-                className="hover:text-brand-cyan transition-colors cursor-pointer"
-              >
-                Dashboard
-              </button>
-              <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-              <span className="text-brand-cyan cursor-default">Analytics</span>
-              <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-              <span className="text-primary">Complaint Intelligence</span>
-            </nav>
-            <h1 className="text-display-lg text-primary font-bold tracking-tight">
-              Complaint Analytics
-            </h1>
-            <p className="text-body-md text-on-surface-variant">
-              Analisis pola keluhan, produk, sentiment, dan performa customer service dalam ekosistem Lumière.
-            </p>
-          </div>
+        {/* ===== PAGE TOOLBAR (NO DUPLICATE HEADER) ===== */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2">
+          <nav className="flex items-center gap-1.5 text-xs text-slate-400">
+            <button
+              onClick={() => navigate("/admin/dashboard")}
+              className="hover:text-slate-900 transition-colors cursor-pointer"
+            >
+              Dashboard
+            </button>
+            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+            <span className="text-slate-600 font-medium cursor-default">Analytics</span>
+            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+            <span className="text-slate-900 font-semibold">Complaint Intelligence</span>
+          </nav>
 
           <div className="flex flex-wrap items-center gap-2">
             <select
               value={period}
               onChange={(e) => setPeriod(e.target.value)}
-              className="appearance-none bg-surface-container px-3 py-2 rounded-lg text-on-surface text-label-md cursor-pointer focus:outline-none"
+              className="appearance-none bg-slate-100/80 border border-slate-200 px-4 py-2 rounded-full text-slate-900 text-xs font-medium cursor-pointer focus:outline-none focus:bg-white focus:border-slate-400 transition-all"
             >
               <option value="7d">7 Hari Terakhir</option>
               <option value="14d">14 Hari Terakhir</option>
@@ -146,7 +138,7 @@ const AdminAnalyticsPage = () => {
             <select
               value={productFilter}
               onChange={(e) => setProductFilter(e.target.value)}
-              className="appearance-none bg-surface-container px-3 py-2 rounded-lg text-on-surface text-label-md cursor-pointer focus:outline-none"
+              className="appearance-none bg-slate-100/80 border border-slate-200 px-4 py-2 rounded-full text-slate-900 text-xs font-medium cursor-pointer focus:outline-none focus:bg-white focus:border-slate-400 transition-all"
             >
               <option value="all">Semua Produk</option>
               {analytics?.product_complaints?.map((p) => (
@@ -154,143 +146,141 @@ const AdminAnalyticsPage = () => {
               ))}
             </select>
 
-            <Button
-              variant="primary"
-              size="md"
-              icon={exporting ? "progress_activity" : "download"}
+            <button
               onClick={handleExport}
               disabled={exporting}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#141414] text-white text-xs font-medium hover:bg-[#2B2B2B] active:bg-[#0A0A0A] transition-colors cursor-pointer shadow-none disabled:opacity-50"
             >
-              {exporting ? "Exporting..." : "Export Report"}
-            </Button>
+              <span className="material-symbols-outlined text-[16px]">file_download</span>
+              <span>{exporting ? "Mengunduh..." : "Export CSV"}</span>
+            </button>
           </div>
         </div>
 
         {/* ===== 4 KPI CARDS ===== */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          <Card tier="base" className="p-5 relative overflow-hidden">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)]">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-label-md uppercase tracking-wider text-on-surface-variant">
+              <span className="text-xs uppercase tracking-wider font-semibold text-slate-500">
                 Total Complaints
               </span>
-              <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-brand-cyan">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700">
                 <span className="material-symbols-outlined text-[20px]">assignment_late</span>
               </div>
             </div>
-            <div className="text-display-lg text-primary font-bold">
+            <div className="text-3xl font-bold text-slate-900 tracking-tight">
               {kpi.total_tickets ?? 0}
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-[#FF4D4D]/15 text-[#FF4D4D] text-label-sm">
+              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-red-50 text-red-600 text-xs font-semibold border border-red-200/60">
                 <span className="material-symbols-outlined text-[12px]">trending_up</span>
                 {kpi.total_tickets_trend || "+0%"}
               </span>
-              <span className="text-body-sm text-on-surface-variant">vs pekan lalu</span>
+              <span className="text-xs text-slate-400">vs pekan lalu</span>
             </div>
-          </Card>
+          </div>
 
-          <Card tier="base" className="p-5">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)]">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-label-md uppercase tracking-wider text-on-surface-variant">
+              <span className="text-xs uppercase tracking-wider font-semibold text-slate-500">
                 Avg Resolution Time
               </span>
-              <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-brand-cyan">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700">
                 <span className="material-symbols-outlined text-[20px]">schedule</span>
               </div>
             </div>
-            <div className="text-display-lg text-primary font-bold">
+            <div className="text-3xl font-bold text-slate-900 tracking-tight">
               {kpi.avg_resolution_time?.split(" ")[0] || "0"}{" "}
-              <span className="text-headline-md text-on-surface-variant font-normal">
+              <span className="text-lg text-slate-400 font-normal">
                 {kpi.avg_resolution_time?.split(" ")[1] || "jam"}
               </span>
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-brand-cyan/15 text-brand-cyan text-label-sm">
+              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200/60">
                 <span className="material-symbols-outlined text-[12px]">trending_down</span>
                 -1.2 jam
               </span>
-              <span className="text-body-sm text-on-surface-variant">efisiensi respon</span>
+              <span className="text-xs text-slate-400">efisiensi respon</span>
             </div>
-          </Card>
+          </div>
 
-          <Card tier="base" className="p-5">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)]">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-label-md uppercase tracking-wider text-on-surface-variant">
+              <span className="text-xs uppercase tracking-wider font-semibold text-slate-500">
                 Resolution Rate
               </span>
-              <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-brand-cyan">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700">
                 <span className="material-symbols-outlined text-[20px]">verified</span>
               </div>
             </div>
-            <div className="text-display-lg text-primary font-bold">
+            <div className="text-3xl font-bold text-slate-900 tracking-tight">
               {kpi.resolution_rate ?? 0}%
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <span className="text-body-sm text-on-surface">
+              <span className="text-xs font-medium text-slate-700">
                 {kpi.resolved ?? 0} dari {kpi.total_tickets ?? 0} tiket
               </span>
-              <span className="text-body-sm text-on-surface-variant">terselesaikan</span>
+              <span className="text-xs text-slate-400">terselesaikan</span>
             </div>
-          </Card>
+          </div>
 
-          <Card tier="base" className="p-5 relative overflow-hidden">
-            <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-[#FF4D4D]/10 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)]">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-label-md uppercase tracking-wider text-[#FF4D4D]">
+              <span className="text-xs uppercase tracking-wider font-semibold text-red-600">
                 Urgent Complaints
               </span>
-              <div className="w-10 h-10 rounded-lg bg-[#FF4D4D]/15 flex items-center justify-center text-[#FF4D4D]">
+              <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200/60 flex items-center justify-center text-red-600">
                 <span className="material-symbols-outlined text-[20px]">warning</span>
               </div>
             </div>
-            <div className="text-display-lg text-[#FF4D4D] font-bold">
+            <div className="text-3xl font-bold text-red-600 tracking-tight">
               {kpi.urgent ?? 0}
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <span className="inline-flex items-center px-2 py-0.5 rounded bg-[#FF4D4D]/15 text-[#FF4D4D] text-label-sm font-semibold">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-50 text-red-600 text-xs font-semibold border border-red-200/60">
                 {kpi.total_tickets > 0
                   ? ((kpi.urgent / kpi.total_tickets) * 100).toFixed(1)
                   : 0}
                 % Total Tiket
               </span>
-              <span className="text-body-sm text-on-surface-variant">prioritas triase</span>
+              <span className="text-xs text-slate-400">prioritas triase</span>
             </div>
-          </Card>
+          </div>
         </div>
 
         {/* ===== SECTION 2: COMPLAINT TREND LINE CHART ===== */}
-        <Card tier="base" className="p-6">
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)]">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-headline-md text-primary font-semibold">
+                <h2 className="text-base font-bold text-slate-900 tracking-tight">
                   Tren Keluhan (Complaint Volume)
                 </h2>
-                <span className="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant text-code-sm">
+                <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-semibold tracking-wider uppercase">
                   REALTIME SYNC
                 </span>
               </div>
-              <p className="text-body-sm text-on-surface-variant mt-1">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Dinamika volume keluhan harian, penyelesaian tiket, dan backlog.
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-full">
               <button
                 onClick={() => setPeriod("7d")}
-                className={`px-3 py-1 rounded text-label-sm font-semibold transition-colors cursor-pointer ${
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                   period === "7d"
-                    ? "bg-brand-cyan text-on-primary-container"
-                    : "text-on-surface-variant hover:text-on-surface"
+                    ? "bg-[#141414] text-white shadow-none"
+                    : "text-slate-600 hover:text-slate-900"
                 }`}
               >
                 Harian
               </button>
               <button
                 onClick={() => setPeriod("30d")}
-                className={`px-3 py-1 rounded text-label-sm transition-colors cursor-pointer ${
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
                   period === "30d"
-                    ? "bg-brand-cyan text-on-primary-container font-semibold"
-                    : "text-on-surface-variant hover:text-on-surface"
+                    ? "bg-[#141414] text-white shadow-none"
+                    : "text-slate-600 hover:text-slate-900"
                 }`}
               >
                 Mingguan
@@ -302,31 +292,33 @@ const AdminAnalyticsPage = () => {
             <LineChartCard data={analytics.trend} title="" height={320} />
           ) : (
             <div className="p-12 text-center">
-              <p className="text-body-sm text-on-surface-variant">Belum ada data trend</p>
+              <p className="text-xs text-slate-400">Belum ada data trend</p>
             </div>
           )}
-        </Card>
+        </div>
 
-        {/* ===== SECTION 3 & 4: PRODUCTS + SEVERITY ===== */}
+        {/* ===== SECTION 3: PRODUCTS (ELONGATED / MEMANJANG FULL WIDTH) ===== */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] overflow-hidden">
+          {analytics?.product_complaints?.length > 0 ? (
+            <BarChartCard
+              data={analytics.product_complaints}
+              title="Keluhan Berdasarkan Produk"
+              subtitle="Distribusi aduan per SKU skincare aktif"
+              nameKey="product"
+              dataKey="count"
+              height={250}
+              yAxisWidth={250}
+            />
+          ) : (
+            <div className="p-12 text-center">
+              <p className="text-xs text-slate-400">Belum ada data produk</p>
+            </div>
+          )}
+        </div>
+
+        {/* ===== SECTION 4: DONUT CHARTS (SEVERITY & SENTIMENT SIDE-BY-SIDE) ===== */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <Card tier="base" className="lg:col-span-7 p-6">
-            {analytics?.product_complaints?.length > 0 ? (
-              <BarChartCard
-                data={analytics.product_complaints}
-                title="Keluhan Berdasarkan Produk"
-                subtitle="Distribusi aduan per SKU skincare aktif"
-                nameKey="product"
-                dataKey="count"
-                height={300}
-              />
-            ) : (
-              <div className="p-12 text-center">
-                <p className="text-body-sm text-on-surface-variant">Belum ada data produk</p>
-              </div>
-            )}
-          </Card>
-
-          <Card tier="base" className="lg:col-span-5 p-6">
+          <div className="lg:col-span-6 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] overflow-hidden">
             {severityDonut.length > 0 ? (
               <DonutChartCard
                 data={severityDonut}
@@ -337,15 +329,12 @@ const AdminAnalyticsPage = () => {
               />
             ) : (
               <div className="p-12 text-center">
-                <p className="text-body-sm text-on-surface-variant">Belum ada data severity</p>
+                <p className="text-xs text-slate-400">Belum ada data severity</p>
               </div>
             )}
-          </Card>
-        </div>
+          </div>
 
-        {/* ===== SECTION 5 & 6: SENTIMENT + CATEGORY ===== */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <Card tier="base" className="lg:col-span-6 p-6">
+          <div className="lg:col-span-6 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] overflow-hidden">
             {sentimentDonut.length > 0 ? (
               <DonutChartCard
                 data={sentimentDonut}
@@ -356,27 +345,29 @@ const AdminAnalyticsPage = () => {
               />
             ) : (
               <div className="p-12 text-center">
-                <p className="text-body-sm text-on-surface-variant">Belum ada data sentimen</p>
+                <p className="text-xs text-slate-400">Belum ada data sentimen</p>
               </div>
             )}
-          </Card>
+          </div>
+        </div>
 
-          <Card tier="base" className="lg:col-span-6 p-6">
-            <h3 className="text-headline-sm text-primary font-semibold">
-              Kategori Keluhan
-            </h3>
-            <p className="text-body-sm text-on-surface-variant mb-4">
-              Segmentasi isu permasalahan yang dilaporkan pelanggan
-            </p>
+        {/* ===== SECTION 5: CATEGORY DISTRIBUTION ===== */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)]">
+          <h3 className="text-base font-bold text-slate-900 tracking-tight">
+            Kategori Keluhan
+          </h3>
+          <p className="text-xs text-slate-500 mb-4 mt-0.5">
+            Segmentasi isu permasalahan yang dilaporkan pelanggan
+          </p>
             {analytics?.category_distribution?.length > 0 ? (
               <div className="flex flex-col gap-2">
                 {analytics.category_distribution.map((cat, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between p-3 rounded-lg bg-surface-container"
+                    className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/80"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-brand-cyan/10 flex items-center justify-center text-brand-cyan">
+                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-700">
                         <span className="material-symbols-outlined text-[16px]">
                           {idx === 0
                             ? "dermatology"
@@ -390,16 +381,16 @@ const AdminAnalyticsPage = () => {
                         </span>
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-body-md text-on-surface font-medium">
+                        <span className="text-xs font-semibold text-slate-800">
                           {cat.name}
                         </span>
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-headline-sm text-primary font-bold block">
+                      <span className="text-sm font-bold text-slate-900 block">
                         {cat.count}
                       </span>
-                      <span className="text-body-sm text-on-surface-variant">
+                      <span className="text-xs text-slate-400">
                         {cat.value}%
                       </span>
                     </div>
@@ -408,32 +399,31 @@ const AdminAnalyticsPage = () => {
               </div>
             ) : (
               <div className="p-12 text-center">
-                <p className="text-body-sm text-on-surface-variant">Belum ada data kategori</p>
+                <p className="text-xs text-slate-400">Belum ada data kategori</p>
               </div>
             )}
-          </Card>
-        </div>
+          </div>
 
         {/* ===== SECTION 7: CS PERFORMANCE TABLE ===== */}
-        <Card tier="base" className="overflow-hidden">
-          <div className="p-5 bg-surface-container-high/40 flex items-center justify-between">
+        <div className="bg-white border border-slate-200/80 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] overflow-hidden">
+          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
             <div>
-              <h3 className="text-headline-sm text-primary font-semibold">
+              <h3 className="text-base font-bold text-slate-900 tracking-tight">
                 Performa Customer Service
               </h3>
-              <p className="text-body-sm text-on-surface-variant mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Monitoring beban kerja dan efisiensi penanganan tiket tim agen
               </p>
             </div>
-            <div className="flex items-center gap-1.5 text-label-sm text-on-surface-variant">
-              <span className="w-2 h-2 rounded-full bg-brand-cyan"></span>
+            <div className="flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
               {analytics?.cs_performance?.length || 0} Agen On-Duty
             </div>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-body-sm">
-              <thead className="bg-surface-container-low text-on-surface-variant text-label-sm uppercase tracking-wider">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50/80 text-slate-500 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider">
                 <tr>
                   <th className="px-4 py-3">CS Agent</th>
                   <th className="px-4 py-3">Assigned</th>
@@ -443,39 +433,39 @@ const AdminAnalyticsPage = () => {
                   <th className="px-4 py-3">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-outline-variant/20">
+              <tbody className="divide-y divide-slate-100 bg-white">
                 {analytics?.cs_performance?.length > 0 ? (
                   analytics.cs_performance.map((cs, idx) => (
                     <tr
                       key={idx}
-                      className="hover:bg-surface-container-high/40 transition-colors"
+                      className="hover:bg-slate-50/60 transition-colors"
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-surface-container-highest text-brand-cyan text-label-md font-bold flex items-center justify-center">
+                          <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center">
                             {cs.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                           </div>
                           <div>
-                            <div className="text-primary font-semibold">{cs.name}</div>
-                            <div className="text-label-sm text-on-surface-variant">
+                            <div className="text-slate-900 font-semibold">{cs.name}</div>
+                            <div className="text-xs text-slate-400">
                               {cs.role}
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-primary font-semibold">
+                      <td className="px-4 py-3 text-slate-900 font-semibold">
                         {cs.assigned} tiket
                       </td>
-                      <td className="px-4 py-3 text-[#2ED573]">{cs.resolved} selesai</td>
-                      <td className="px-4 py-3 text-[#FFC048]">{cs.pending} pending</td>
+                      <td className="px-4 py-3 text-emerald-600 font-medium">{cs.resolved} selesai</td>
+                      <td className="px-4 py-3 text-amber-600 font-medium">{cs.pending} pending</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <span className="text-primary font-semibold">
+                          <span className="text-slate-900 font-semibold">
                             {cs.resolution_rate}%
                           </span>
-                          <div className="w-16 h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+                          <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
                             <div
-                              className="h-full bg-brand-cyan rounded-full"
+                              className="h-full bg-slate-800 rounded-full"
                               style={{ width: `${cs.resolution_rate}%` }}
                             ></div>
                           </div>
@@ -492,7 +482,7 @@ const AdminAnalyticsPage = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-on-surface-variant">
+                    <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
                       Belum ada data CS performance
                     </td>
                   </tr>
@@ -500,7 +490,7 @@ const AdminAnalyticsPage = () => {
               </tbody>
             </table>
           </div>
-        </Card>
+        </div>
 
         {/* ===== BOTTOM NAVIGATION ACTION ===== */}
         <div className="flex justify-end pt-2">

@@ -1,3 +1,4 @@
+import React from "react";
 import Card from "../ui/Card";
 import StatusBadge from "../ui/StatusBadge";
 
@@ -5,17 +6,17 @@ export const AIAnalysisPanel = ({ analysis, ticketId }) => {
   if (!analysis) return null;
 
   return (
-    <Card tier="base" className="overflow-hidden shadow-cyan-inset" glow>
+    <Card tier="base" className="overflow-hidden bg-white border border-slate-200/80 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)]">
       {/* Header */}
-      <div className="p-4 bg-surface-container flex items-center justify-between flex-wrap gap-2">
+      <div className="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-brand-cyan text-[20px] animate-pulse">
+          <span className="material-symbols-outlined text-slate-800 text-[20px]">
             neurology
           </span>
-          <h3 className="text-headline-sm text-primary font-semibold">AI Analysis Summary</h3>
+          <h3 className="text-sm text-slate-900 font-semibold">AI Analysis Summary</h3>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-cyan/10 text-primary-fixed-dim text-label-sm">
-          <span className="w-1.5 h-1.5 rounded-full bg-brand-cyan animate-ping"></span>
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
           AI-generated • Human review required
         </div>
       </div>
@@ -24,21 +25,21 @@ export const AIAnalysisPanel = ({ analysis, ticketId }) => {
         {/* Section 1 & 2: Symptoms + Formula */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* Detected Symptoms */}
-          <div className="p-3 rounded-lg bg-surface-container flex flex-col gap-2">
-            <span className="text-label-sm text-on-surface-variant uppercase tracking-wider">
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col gap-2">
+            <span className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">
               1. Sinyal Terdeteksi
             </span>
             <div className="flex flex-col gap-2">
               {analysis.symptoms.map((symptom, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-2 rounded bg-surface-container-lowest"
+                  className="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-100 shadow-xs"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#FFC048]"></span>
-                    <span className="text-body-sm text-on-surface font-medium">{symptom}</span>
+                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                    <span className="text-xs text-slate-800 font-medium">{symptom}</span>
                   </div>
-                  <span className="px-1.5 py-0.5 rounded bg-surface-container-highest text-label-sm text-primary-fixed-dim">
+                  <span className="px-2 py-0.5 rounded-full bg-slate-100 text-[10px] text-slate-600 font-medium">
                     {idx === 0 ? "Visual" : "Keluhan"}
                   </span>
                 </div>
@@ -47,17 +48,17 @@ export const AIAnalysisPanel = ({ analysis, ticketId }) => {
           </div>
 
           {/* Formula & Ingredients */}
-          <div className="p-3 rounded-lg bg-surface-container flex flex-col gap-1.5">
-            <span className="text-label-sm text-on-surface-variant uppercase tracking-wider">
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col gap-1.5">
+            <span className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">
               2. Formula & Kandungan
             </span>
-            <p className="text-body-sm text-on-surface">
-              <span className="font-semibold text-brand-cyan">Formula Terkait:</span>{" "}
+            <p className="text-xs text-slate-700">
+              <span className="font-semibold text-slate-900">Formula Terkait:</span>{" "}
               {analysis.formula}
             </p>
-            <div className="p-2 rounded bg-surface-container-lowest mt-1">
-              <span className="text-label-sm text-[#FFC048] block mb-0.5">Catatan Formula:</span>
-              <p className="text-body-sm text-on-surface-variant leading-snug">
+            <div className="p-2.5 rounded-lg bg-white border border-slate-100 shadow-xs mt-1">
+              <span className="text-[11px] text-amber-700 font-medium block mb-0.5">Catatan Formula:</span>
+              <p className="text-xs text-slate-600 leading-relaxed">
                 {analysis.formulaNote}
               </p>
             </div>
@@ -65,48 +66,54 @@ export const AIAnalysisPanel = ({ analysis, ticketId }) => {
         </div>
 
         {/* Section 3: Severity Bar */}
-        <div className="p-3 rounded-lg bg-surface-container flex flex-col gap-2">
+        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className="text-label-sm text-on-surface-variant uppercase tracking-wider">
+            <span className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">
               3. Tingkat Keparahan
             </span>
             <span
-              className={`px-2 py-0.5 rounded text-label-sm font-bold ${
+              className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                 analysis.severityLevel === "High"
-                  ? "bg-[#FF4D4D]/15 text-[#FF4D4D]"
+                  ? "bg-rose-50 text-rose-700 border border-rose-200"
                   : analysis.severityLevel === "Moderate"
-                  ? "bg-[#FFC048]/15 text-[#FFC048]"
-                  : "bg-[#2ED573]/15 text-[#2ED573]"
+                  ? "bg-amber-50 text-amber-700 border border-amber-200"
+                  : "bg-emerald-50 text-emerald-700 border border-emerald-200"
               }`}
             >
               {analysis.severityLevel}
             </span>
           </div>
-          <div className="w-full bg-surface-container-highest rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
             <div
-              className="bg-gradient-to-r from-brand-cyan via-[#FFC048] to-[#FF4D4D] h-full rounded-full"
+              className={`h-full rounded-full ${
+                analysis.severityLevel === "High"
+                  ? "bg-rose-500"
+                  : analysis.severityLevel === "Moderate"
+                  ? "bg-amber-500"
+                  : "bg-emerald-500"
+              }`}
               style={{ width: `${analysis.severityPercentage}%` }}
             ></div>
           </div>
-          <span className="text-body-sm text-on-surface-variant">
+          <span className="text-xs text-slate-500">
             {analysis.keyConcern}
           </span>
         </div>
 
         {/* Section 4: Sentiment */}
-        <div className="p-3 rounded-lg bg-surface-container flex flex-col gap-2">
-          <span className="text-label-sm text-on-surface-variant uppercase tracking-wider">
+        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col gap-2">
+          <span className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">
             4. Sentimen Pelanggan
           </span>
           <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-[#FFC048] text-[28px]">
+            <span className="material-symbols-outlined text-amber-500 text-[26px]">
               sentiment_worried
             </span>
             <div className="flex flex-col">
-              <span className="text-headline-sm text-primary font-semibold">
+              <span className="text-sm text-slate-900 font-semibold">
                 Concerned
               </span>
-              <span className="text-body-sm text-on-surface-variant">
+              <span className="text-xs text-slate-500">
                 Skor: {analysis.sentimentScore || 38}/100 (Anxious)
               </span>
             </div>
@@ -114,43 +121,36 @@ export const AIAnalysisPanel = ({ analysis, ticketId }) => {
         </div>
 
         {/* Section 5: Recommendation (Non-Medical) */}
-        <div className="p-4 rounded-lg bg-surface-container-highest flex flex-col gap-2 shadow-inner">
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-brand-cyan text-[18px]">gavel</span>
-            <span className="text-headline-sm text-brand-cyan font-semibold">
+            <span className="material-symbols-outlined text-slate-700 text-[18px]">gavel</span>
+            <span className="text-sm text-slate-900 font-semibold">
               5. Panduan Tindakan CS (Non-Medis)
             </span>
           </div>
-          <p className="text-body-md text-on-surface-variant leading-relaxed">
+          <p className="text-xs text-slate-600 leading-relaxed">
             {analysis.recommendation}
           </p>
-          <span className="text-error font-semibold text-label-sm">
+          <span className="text-rose-600 font-medium text-[11px] flex items-center gap-1">
             ⚠ Dilarang membuat diagnosis medis definitif atau klaim klinis.
           </span>
         </div>
 
         {/* Footer Metadata */}
-        <div className="flex items-center justify-between pt-3 border-t border-outline-variant/30 flex-wrap gap-2">
-          <div className="flex items-center gap-3 text-code-sm text-on-surface-variant">
-            <span className="flex items-center gap-1 text-brand-cyan">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-cyan"></span>
+        <div className="flex items-center justify-between pt-3 border-t border-slate-100 flex-wrap gap-2">
+          <div className="flex items-center gap-3 text-xs text-slate-500">
+            <span className="flex items-center gap-1.5 text-slate-700 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               AI-Assisted Analysis Selesai (0.8 detik)
             </span>
             <span>Data Sumber: Tiket {ticketId}</span>
+            <button
+              onClick={() => window.location.href = `/cs/ai-analysis/${ticketId.replace("#", "")}`}
+              className="text-slate-900 hover:underline font-medium cursor-pointer"
+            >
+              Buka Detail Lengkap →
+            </button>
           </div>
-          <div className="flex items-center gap-3 text-code-sm text-on-surface-variant">
-  <span className="flex items-center gap-1 text-brand-cyan">
-    <span className="w-1.5 h-1.5 rounded-full bg-brand-cyan"></span>
-    AI-Assisted Analysis Selesai (0.8 detik)
-  </span>
-  <span>Data Sumber: Tiket {ticketId}</span>
-  <button
-    onClick={() => window.location.href = `/cs/ai-analysis/${ticketId.replace("#", "")}`}
-    className="text-brand-cyan hover:text-primary-fixed underline font-label-md"
-  >
-    Buka Detail Lengkap →
-  </button>
-</div>
           <StatusBadge type="aiAnalyzed" label="Human Review Required" />
         </div>
       </div>

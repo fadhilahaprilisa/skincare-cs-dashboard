@@ -49,7 +49,7 @@ const AdminTicketsPage = () => {
       t.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.id.toString().includes(searchQuery) ||
       t.product?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchFilter =
       activeFilter === "all" ||
       (activeFilter === "urgent" && t.severity === "High") ||
@@ -114,19 +114,30 @@ const AdminTicketsPage = () => {
       topbarProps={{
         title: "Tickets Management",
         subtitle: "Monitoring semua tiket customer service",
+        showSearch: false,
       }}
     >
       <div className="p-6 space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div>
-            <h1 className="text-headline-lg text-primary font-bold tracking-tight">
-              All Tickets
-            </h1>
-            <p className="text-body-sm text-on-surface-variant mt-1">
-              Menampilkan {filteredTickets.length} dari {tickets.length} tiket
-            </p>
-          </div>
+        {/* Page Toolbar (Breadcrumbs + Primary Actions) */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
           <div className="flex items-center gap-2">
+            <nav className="flex items-center gap-1.5 text-xs text-slate-400">
+              <button
+                onClick={() => navigate("/admin/dashboard")}
+                className="hover:text-slate-900 transition-colors cursor-pointer"
+              >
+                Dashboard
+              </button>
+              <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+              <span className="text-slate-900 font-semibold">Tickets Management</span>
+            </nav>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+              {tickets.length} Tiket
+            </span>
+          </div>
+
+          {/* Primary Actions */}
+          <div className="flex items-center gap-2.5 shrink-0">
             <Button
               variant="secondary"
               size="sm"
@@ -134,7 +145,7 @@ const AdminTicketsPage = () => {
               onClick={handleExport}
               disabled={exporting}
             >
-              {exporting ? "Exporting..." : "Export"}
+              {exporting ? "Mengunduh..." : "Export"}
             </Button>
             <Button
               variant="primary"
@@ -147,10 +158,11 @@ const AdminTicketsPage = () => {
           </div>
         </div>
 
-        {/* Filter + Search */}
-        <Card tier="base" className="p-4">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <div className="flex items-center gap-2 overflow-x-auto">
+        {/* Filter + Search Bar (Clean, Balanced & Responsive) */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-3.5 sm:p-4 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)]">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            {/* Filter Pills */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
               {[
                 { key: "all", label: `Semua (${tickets.length})` },
                 { key: "urgent", label: `Urgent (${tickets.filter((t) => t.severity === "High").length})` },
@@ -160,45 +172,54 @@ const AdminTicketsPage = () => {
                 <button
                   key={f.key}
                   onClick={() => setActiveFilter(f.key)}
-                  className={`px-3 py-1.5 rounded-lg text-label-md whitespace-nowrap transition-all cursor-pointer ${
-                    activeFilter === f.key
-                      ? "bg-brand-cyan text-on-primary-container font-bold shadow-cyan-glow"
-                      : "bg-surface-container text-on-surface-variant hover:bg-surface-container-high"
-                  }`}
+                  className={`px-4 py-2 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition-colors cursor-pointer ${activeFilter === f.key
+                      ? "bg-[#141414] text-white shadow-none"
+                      : "bg-[#F1F1F0] text-[#141414] hover:bg-[#E5E5E3]"
+                    }`}
                 >
                   {f.label}
                 </button>
               ))}
             </div>
-            <div className="relative flex items-center">
-              <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-[18px] pointer-events-none">
+
+            {/* Search Input */}
+            <div className="relative flex items-center w-full md:w-72 shrink-0">
+              <span className="material-symbols-outlined absolute left-3.5 text-slate-400 text-[18px] pointer-events-none">
                 search
               </span>
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cari tiket, customer, atau produk..."
-                className="w-full lg:w-72 bg-surface-container-lowest border border-outline-variant pl-10 pr-3 py-2 rounded-lg text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-brand-cyan transition-all"
+                className="w-full bg-slate-100/80 border border-slate-200 pl-10 pr-9 py-2 rounded-full text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-slate-400 transition-all"
               />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 text-slate-400 hover:text-slate-600 cursor-pointer flex items-center justify-center"
+                >
+                  <span className="material-symbols-outlined text-[16px]">close</span>
+                </button>
+              )}
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* Table */}
         <Card tier="base" className="overflow-hidden">
           {filteredTickets.length === 0 ? (
             <div className="p-12 text-center">
-              <span className="material-symbols-outlined text-brand-cyan text-[64px] opacity-40 mb-3">
+              <span className="material-symbols-outlined text-slate-400 text-[48px] mb-3">
                 search_off
               </span>
-              <p className="text-body-md text-on-surface-variant">
+              <p className="text-body-md text-slate-500">
                 Tidak ada tiket yang sesuai dengan filter atau pencarian Anda.
               </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-body-sm">
-                <thead className="bg-surface-container-low text-on-surface-variant text-label-sm uppercase tracking-wider">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50/80 text-slate-500 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider">
                   <tr>
                     <th className="px-4 py-3">ID</th>
                     <th className="px-4 py-3">Customer</th>
@@ -210,7 +231,7 @@ const AdminTicketsPage = () => {
                     <th className="px-4 py-3 text-right">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-outline-variant/20">
+                <tbody className="bg-white divide-y divide-slate-100">
                   {filteredTickets.map((t) => {
                     const initials = t.customer_name
                       ?.split(" ")
@@ -223,23 +244,23 @@ const AdminTicketsPage = () => {
                       <tr
                         key={t.id}
                         onClick={() => navigate(`/cs/tickets/${t.id}`)}
-                        className="hover:bg-surface-container-high/40 transition-colors cursor-pointer"
+                        className="hover:bg-slate-50/60 transition-colors cursor-pointer"
                       >
-                        <td className="px-4 py-3 text-code-sm text-brand-cyan font-semibold">
+                        <td className="px-4 py-3 font-mono text-slate-500 font-semibold">
                           #TK-{String(t.id).padStart(4, "0")}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-surface-container-highest text-brand-cyan text-label-sm font-bold flex items-center justify-center">
+                            <div className="w-7 h-7 rounded-full bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center">
                               {initials}
                             </div>
                             <div>
-                              <div className="text-primary font-medium">{t.customer_name || "-"}</div>
-                              <div className="text-label-sm text-on-surface-variant">{t.customer_tier || "Regular"}</div>
+                              <div className="text-slate-900 font-medium">{t.customer_name || "-"}</div>
+                              <div className="text-[11px] text-slate-500">{t.customer_tier || "Regular"}</div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-on-surface-variant max-w-xs truncate">
+                        <td className="px-4 py-3 text-slate-600 max-w-xs truncate">
                           {t.product || "-"}
                         </td>
                         <td className="px-4 py-3">
@@ -248,8 +269,8 @@ const AdminTicketsPage = () => {
                               t.severity === "High"
                                 ? "severityHigh"
                                 : t.severity === "Moderate"
-                                ? "severityModerate"
-                                : "severityLow"
+                                  ? "severityModerate"
+                                  : "severityLow"
                             }
                             label={t.severity || "N/A"}
                           />
@@ -257,22 +278,28 @@ const AdminTicketsPage = () => {
                         <td className="px-4 py-3">
                           <StatusBadge type={t.sentiment?.toLowerCase() || "neutral"} label={t.sentiment || "Neutral"} />
                         </td>
-                        <td className="px-4 py-3 text-on-surface">{t.assigned_cs || "-"}</td>
+                        <td className="px-4 py-3 text-slate-600">{t.assigned_cs || "-"}</td>
                         <td className="px-4 py-3">
                           <StatusBadge
                             type={
                               t.status === "RESOLVED"
                                 ? "resolved"
                                 : t.status === "IN_REVIEW" || t.status === "PROCESSING"
-                                ? "processing"
-                                : "pending"
+                                  ? "processing"
+                                  : "pending"
                             }
                             label={t.status}
                             pulse={t.status === "PROCESSING" || t.status === "IN_REVIEW"}
                           />
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <button className="text-brand-cyan hover:text-primary-fixed text-label-md cursor-pointer">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/cs/tickets/${t.id}`);
+                            }}
+                            className="bg-transparent text-slate-700 hover:bg-slate-100 hover:text-slate-950 rounded-full px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer"
+                          >
                             Tinjau
                           </button>
                         </td>

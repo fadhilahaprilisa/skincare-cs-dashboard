@@ -8,35 +8,35 @@ export default {
   theme: {
     extend: {
       colors: {
-        // ===== SURFACE TIERS =====
-        'surface': '#051424',
-        'surface-dim': '#051424',
-        'surface-bright': '#2c3a4c',
-        'surface-container-lowest': '#010f1f',
-        'surface-container-low': '#0d1c2d',
-        'surface-container': '#122131',
-        'surface-container-high': '#1c2b3c',
-        'surface-container-highest': '#273647',
-        'surface-variant': '#273647',
+        // ===== SURFACE TIERS (Bright Clean Off-White) =====
+        'surface': '#F8FAFC',
+        'surface-dim': '#F1F5F9',
+        'surface-bright': '#FFFFFF',
+        'surface-container-lowest': '#FFFFFF',
+        'surface-container-low': '#F8FAFC',
+        'surface-container': '#F1F5F9',
+        'surface-container-high': '#E2E8F0',
+        'surface-container-highest': '#CBD5E1',
+        'surface-variant': '#F1F5F9',
         
-        // ===== TEXT & OUTLINE =====
-        'on-surface': '#d4e4fa',
-        'on-surface-variant': '#b9cacb',
-        'on-background': '#d4e4fa',
-        'outline': '#849495',
-        'outline-variant': '#3a494b',
+        // ===== TEXT & OUTLINE (High Contrast Slate) =====
+        'on-surface': '#0F172A',
+        'on-surface-variant': '#64748B',
+        'on-background': '#0F172A',
+        'outline': '#CBD5E1',
+        'outline-variant': '#E2E8F0',
         
-        // ===== PRIMARY (LUMIÈRE CYAN) =====
-        'primary': '#e0fdff',
-        'on-primary': '#00373a',
-        'primary-container': '#00f2fe',
-        'on-primary-container': '#006a70',
-        'primary-fixed': '#6ff6ff',
-        'primary-fixed-dim': '#00dce6',
-        'on-primary-fixed': '#002022',
-        'on-primary-fixed-variant': '#004f53',
-        'inverse-primary': '#00696f',
-        'surface-tint': '#00dce6',
+        // ===== PRIMARY =====
+        'primary': '#0F172A',
+        'on-primary': '#FFFFFF',
+        'primary-container': '#141414',
+        'on-primary-container': '#FFFFFF',
+        'primary-fixed': '#1E293B',
+        'primary-fixed-dim': '#334155',
+        'on-primary-fixed': '#FFFFFF',
+        'on-primary-fixed-variant': '#CBD5E1',
+        'inverse-primary': '#F8FAFC',
+        'surface-tint': '#0F172A',
         
         // ===== SECONDARY (SOFT ROSE PEARL) =====
         'secondary': '#d1c3c8',
@@ -64,20 +64,30 @@ export default {
         'error-container': '#93000a',
         'on-error-container': '#ffdad6',
         
-        'background': '#051424',
-        'inverse-surface': '#d4e4fa',
-        'inverse-on-surface': '#233143',
+        'background': '#F8FAFC',
+        'inverse-surface': '#0F172A',
+        'inverse-on-surface': '#F8FAFC',
         
-        // ===== BRAND CUSTOM (dari mockup) =====
-        'brand-cyan': '#00f2fe',
-        'brand-violet': '#7B2CBF',
-        'brand-deep': '#110924',
+        // ===== BRAND CUSTOM =====
+        'brand-cyan': '#0284C7',
+        'brand-violet': '#7C5CFF',
+        'brand-deep': '#0F172A',
         'brand-rose': '#FFF0F5',
         
         // ===== STATUS SEMANTIC =====
-        'status-urgent': '#FF4D4D',
-        'status-pending': '#FFC048',
-        'status-resolved': '#2ED573',
+        'status-urgent': '#EF4444',
+        'status-pending': '#F59E0B',
+        // ===== LUMIERE SIGNATURE DESIGN SYSTEM =====
+        'lumiere-cyan': '#0284C7',
+        'lumiere-dark': '#0F172A',
+        'lumiere-violet': '#7C5CFF',
+        'lumiere-lavender': '#C9B8FF',
+        'lumiere-rose': '#FFF0F5',
+        'lumiere-canvas': '#F8FAFC',
+        'lumiere-card': '#FFFFFF',
+        'lumiere-border': '#E2E8F0',
+        'lumiere-border-violet': '#E2E8F0',
+        'status-resolved': '#10B981',
       },
       borderRadius: {
         'DEFAULT': '0.25rem',
@@ -85,6 +95,9 @@ export default {
         'md': '0.75rem',
         'lg': '1rem',
         'xl': '1.5rem',
+        '2xl': '1.75rem',
+        '3xl': '2rem',
+        '4xl': '2.5rem',
         'full': '9999px',
       },
       spacing: {
@@ -100,8 +113,11 @@ export default {
       },
       fontFamily: {
         'sans': ['Inter', 'sans-serif'],
+        'display': ['"Playfair Display"', 'Georgia', 'serif'],
+        'serif': ['"Playfair Display"', 'Georgia', 'serif'],
       },
       fontSize: {
+        'display-2xl': ['48px', { lineHeight: '56px', letterSpacing: '-0.03em', fontWeight: '700' }],
         'display-lg': ['36px', { lineHeight: '44px', letterSpacing: '-0.025em', fontWeight: '700' }],
         'headline-lg': ['28px', { lineHeight: '36px', letterSpacing: '-0.02em', fontWeight: '600' }],
         'headline-lg-mobile': ['24px', { lineHeight: '32px', letterSpacing: '-0.015em', fontWeight: '600' }],
@@ -115,18 +131,26 @@ export default {
         'code-sm': ['12px', { lineHeight: '16px', fontWeight: '500' }],
       },
       boxShadow: {
-        'cyan-glow': '0 0 16px rgba(0, 242, 254, 0.4)',
-        'cyan-glow-lg': '0 0 24px rgba(0, 242, 254, 0.45)',
+        'cyan-glow': '0 0 20px rgba(0, 242, 254, 0.35)',
+        'cyan-glow-lg': '0 0 32px rgba(0, 242, 254, 0.45)',
         'cyan-inset': 'inset 0 0 12px 0 rgba(0, 242, 254, 0.08), 0 0 20px -2px rgba(0, 242, 254, 0.15)',
+        'violet-glow': '0 0 24px rgba(124, 92, 255, 0.35)',
         'card-ambient': '0 8px 24px -4px rgba(0, 0, 0, 0.45)',
+        'frosted': '0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.08)',
+        'frosted-cyan': '0 8px 32px 0 rgba(0, 242, 254, 0.1), inset 0 0 0 1px rgba(0, 242, 254, 0.25)',
       },
       animation: {
         'pulse-cyan': 'pulseCyan 2s ease-in-out infinite',
+        'float': 'float 6s ease-in-out infinite',
       },
       keyframes: {
         pulseCyan: {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.5' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-8px)' },
         },
       },
     },

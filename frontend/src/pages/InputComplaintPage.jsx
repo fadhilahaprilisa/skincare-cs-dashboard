@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Sparkles } from "lucide-react";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
@@ -154,23 +155,25 @@ const InputComplaintPage = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex flex-col gap-1">
-            <nav className="flex items-center gap-1 text-label-sm uppercase tracking-wider text-on-surface-variant">
+            <nav className="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
               <button
                 onClick={() => navigate("/cs/dashboard")}
-                className="cursor-pointer hover:text-brand-cyan"
+                className="cursor-pointer hover:text-slate-900 transition-colors"
               >
                 Dashboard
               </button>
               <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-              <span className="text-brand-cyan">New Complaint Intake</span>
+              <span className="text-slate-600 font-medium">New Complaint Intake</span>
             </nav>
             <div className="flex items-center gap-2">
-              <h1 className="text-headline-lg text-primary font-bold tracking-tight">
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
                 Input Keluhan Customer
               </h1>
-              <StatusBadge type="processing" label="Triage Intake Mode" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-800 text-xs font-semibold border border-slate-200">
+                Triage Intake Mode
+              </span>
             </div>
-            <p className="text-body-sm text-on-surface-variant max-w-2xl">
+            <p className="text-sm text-slate-500 max-w-2xl">
               Catat keluhan customer untuk dibuat menjadi tiket dan dianalisis secara instan
               dengan bantuan AI Lumière Neural.
             </p>
@@ -191,13 +194,13 @@ const InputComplaintPage = () => {
 
         {/* Error Alert */}
         {error && (
-          <div className="p-4 rounded-lg bg-[#FF4D4D]/10 border border-[#FF4D4D]/30 flex items-start gap-3">
-            <span className="material-symbols-outlined text-[#FF4D4D] text-[20px] shrink-0">
+          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-3">
+            <span className="material-symbols-outlined text-red-500 text-[20px] shrink-0">
               error
             </span>
             <div className="flex-1">
-              <p className="text-body-md text-[#FF4D4D] font-semibold">Validasi Gagal</p>
-              <p className="text-body-sm text-[#FF4D4D]/80 mt-0.5">{error}</p>
+              <p className="text-sm text-red-800 font-semibold">Validasi Gagal</p>
+              <p className="text-xs text-red-600 mt-0.5">{error}</p>
             </div>
           </div>
         )}
@@ -206,17 +209,17 @@ const InputComplaintPage = () => {
           {/* LEFT: FORM */}
           <div className="xl:col-span-7 flex flex-col gap-6 min-w-0">
             {/* Card 1: Data Customer */}
-            <Card tier="base" className="overflow-hidden">
-              <div className="px-6 py-4 bg-surface-container flex items-center justify-between">
+            <div className="bg-white border border-slate-200/80 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-brand-cyan/15 flex items-center justify-center text-brand-cyan">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700">
                     <span className="material-symbols-outlined text-[18px]">badge</span>
                   </div>
                   <div>
-                    <h2 className="text-headline-sm text-primary font-semibold">
+                    <h2 className="text-base font-bold text-slate-900 tracking-tight">
                       Data Customer & Kontak
                     </h2>
-                    <p className="text-label-sm text-on-surface-variant">
+                    <p className="text-xs text-slate-500">
                       Identifikasi pelanggan dan riwayat penggunaan formula
                     </p>
                   </div>
@@ -225,12 +228,14 @@ const InputComplaintPage = () => {
                   <button
                     type="button"
                     onClick={handleOpenNewCustomer}
-                    className="text-brand-cyan hover:text-primary-fixed text-label-sm font-semibold flex items-center gap-1"
+                    className="text-slate-700 hover:text-slate-950 text-xs font-semibold flex items-center gap-1 cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-[14px]">person_add</span>
                     + Customer Baru
                   </button>
-                  <StatusBadge type="processing" label="Langkah 1/2" />
+                  <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                    Langkah 1/2
+                  </span>
                 </div>
               </div>
 
@@ -259,14 +264,14 @@ const InputComplaintPage = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-label-md text-on-surface font-semibold">
+                    <label className="text-xs font-semibold text-slate-700">
                       Produk Terkait
                     </label>
                     <select
                       value={formData.product}
                       onChange={(e) => setFormData({ ...formData, product: e.target.value })}
                       disabled={isSubmitting}
-                      className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2.5 px-3 text-body-md text-on-surface focus:outline-none focus:border-brand-cyan transition-all appearance-none"
+                      className="w-full bg-slate-100/80 border border-slate-200 rounded-full py-2.5 px-4 text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-slate-400 transition-all appearance-none"
                     >
                       <option>Ceramide Barrier Moisturizer</option>
                       <option>Retinol 0.5% Night Elixir</option>
@@ -288,7 +293,7 @@ const InputComplaintPage = () => {
 
                 {/* Kategori Chips */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-label-md text-on-surface font-semibold">
+                  <label className="text-xs font-semibold text-slate-700">
                     Kategori Keluhan Utama
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -298,10 +303,10 @@ const InputComplaintPage = () => {
                         type="button"
                         onClick={() => setFormData({ ...formData, category: cat })}
                         disabled={isSubmitting}
-                        className={`px-3 py-1.5 rounded-lg text-headline-sm flex items-center gap-1.5 transition-all ${
+                        className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
                           formData.category === cat
-                            ? "bg-brand-cyan text-on-primary-container font-semibold shadow-cyan-glow"
-                            : "bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface"
+                            ? "bg-[#141414] text-white shadow-none"
+                            : "bg-[#F1F1F0] text-[#141414] hover:bg-[#E5E5E3]"
                         }`}
                       >
                         {cat}
@@ -310,34 +315,36 @@ const InputComplaintPage = () => {
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
 
             {/* Card 2: Detail Keluhan */}
-            <Card tier="base" className="overflow-hidden">
-              <div className="px-6 py-4 bg-surface-container flex items-center justify-between">
+            <div className="bg-white border border-slate-200/80 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-brand-cyan/15 flex items-center justify-center text-brand-cyan">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700">
                     <span className="material-symbols-outlined text-[18px]">edit_note</span>
                   </div>
                   <div>
-                    <h2 className="text-headline-sm text-primary font-semibold">
+                    <h2 className="text-base font-bold text-slate-900 tracking-tight">
                       Detail Keluhan & Lampiran
                     </h2>
-                    <p className="text-label-sm text-on-surface-variant">
+                    <p className="text-xs text-slate-500">
                       Deskripsi objektif dan bukti pendukung
                     </p>
                   </div>
                 </div>
-                <StatusBadge type="processing" label="Langkah 2/2" />
+                <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                  Langkah 2/2
+                </span>
               </div>
 
               <div className="p-6 flex flex-col gap-5">
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-label-md text-on-surface font-semibold">
+                    <label className="text-xs font-semibold text-slate-700">
                       Deskripsi Keluhan Pelanggan
                     </label>
-                    <span className="text-label-sm text-on-surface-variant">
+                    <span className="text-xs text-slate-400">
                       {formData.complaint.length} karakter
                     </span>
                   </div>
@@ -350,12 +357,12 @@ const InputComplaintPage = () => {
                     disabled={isSubmitting}
                     placeholder="Contoh: Kulit saya merah saat memakai pelembab selama 5 hari..."
                   />
-                  <div className="flex items-start gap-2 p-2.5 rounded-lg bg-surface-container text-body-sm text-on-surface-variant mt-1">
-                    <span className="material-symbols-outlined text-brand-cyan text-[16px] shrink-0 mt-0.5">
+                  <div className="flex items-start gap-2 p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 mt-1">
+                    <span className="material-symbols-outlined text-slate-500 text-[16px] shrink-0 mt-0.5">
                       info
                     </span>
                     <span>
-                      <strong>Panduan Agen:</strong> Gunakan informasi yang disampaikan
+                      <strong className="text-slate-800">Panduan Agen:</strong> Gunakan informasi yang disampaikan
                       customer. Hindari menambahkan diagnosis atau asumsi medis.
                     </span>
                   </div>
@@ -363,33 +370,33 @@ const InputComplaintPage = () => {
 
                 {/* Tombol Upload Attachment */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-label-md text-on-surface font-semibold">
+                  <label className="text-xs font-semibold text-slate-700">
                     Lampiran Bukti (Opsional)
                   </label>
                   <div className="grid grid-cols-3 gap-3">
                     <button
                       type="button"
                       onClick={handleUploadAttachment}
-                      className="p-3 rounded-lg bg-surface-container hover:bg-surface-container-high transition-all flex flex-col items-center justify-center gap-1.5 text-on-surface-variant hover:text-on-surface"
+                      className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:bg-slate-100 transition-all flex flex-col items-center justify-center gap-1.5 text-slate-700 cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-brand-cyan text-[22px]">photo_camera</span>
-                      <span className="text-label-sm font-medium text-center">Foto Kondisi Kulit</span>
+                      <span className="material-symbols-outlined text-slate-700 text-[22px]">photo_camera</span>
+                      <span className="text-xs font-medium text-center">Foto Kondisi Kulit</span>
                     </button>
                     <button
                       type="button"
                       onClick={handleUploadAttachment}
-                      className="p-3 rounded-lg bg-surface-container hover:bg-surface-container-high transition-all flex flex-col items-center justify-center gap-1.5 text-on-surface-variant hover:text-on-surface"
+                      className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:bg-slate-100 transition-all flex flex-col items-center justify-center gap-1.5 text-slate-700 cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-brand-cyan text-[22px]">forum</span>
-                      <span className="text-label-sm font-medium text-center">Screenshot Chat WA</span>
+                      <span className="material-symbols-outlined text-slate-700 text-[22px]">forum</span>
+                      <span className="text-xs font-medium text-center">Screenshot Chat WA</span>
                     </button>
                     <button
                       type="button"
                       onClick={handleUploadAttachment}
-                      className="p-3 rounded-lg bg-surface-container hover:bg-surface-container-high transition-all flex flex-col items-center justify-center gap-1.5 text-on-surface-variant hover:text-on-surface"
+                      className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:bg-slate-100 transition-all flex flex-col items-center justify-center gap-1.5 text-slate-700 cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-brand-cyan text-[22px]">qr_code_scanner</span>
-                      <span className="text-label-sm font-medium text-center">Bukti Batch / Segel</span>
+                      <span className="material-symbols-outlined text-slate-700 text-[22px]">qr_code_scanner</span>
+                      <span className="text-xs font-medium text-center">Bukti Batch / Segel</span>
                     </button>
                   </div>
 
@@ -397,16 +404,16 @@ const InputComplaintPage = () => {
                   {attachments.length > 0 && (
                     <div className="flex flex-col gap-2 mt-3">
                       {attachments.map((file, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-surface-container">
+                        <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
                           <div className="flex items-center gap-2">
-                            <span className="material-symbols-outlined text-brand-cyan text-[18px]">image</span>
-                            <span className="text-body-sm text-primary">{file.name}</span>
-                            <span className="text-label-sm text-on-surface-variant">({file.size})</span>
+                            <span className="material-symbols-outlined text-slate-700 text-[18px]">image</span>
+                            <span className="text-xs font-semibold text-slate-900">{file.name}</span>
+                            <span className="text-xs text-slate-400">({file.size})</span>
                           </div>
                           <button
                             type="button"
                             onClick={() => handleRemoveAttachment(idx)}
-                            className="text-[#FF4D4D] hover:bg-[#FF4D4D]/10 p-1 rounded transition-colors"
+                            className="text-red-500 hover:bg-red-50 p-1 rounded-full transition-colors cursor-pointer"
                           >
                             <span className="material-symbols-outlined text-[16px]">delete</span>
                           </button>
@@ -419,10 +426,10 @@ const InputComplaintPage = () => {
                 {/* Prioritas */}
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-label-md text-on-surface font-semibold">
+                    <label className="text-xs font-semibold text-slate-700">
                       Prioritas Awal
                     </label>
-                    <span className="text-code-sm text-[#FFC048] bg-[#FFC048]/10 px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded-full">
                       SLA: 2 Jam
                     </span>
                   </div>
@@ -433,22 +440,22 @@ const InputComplaintPage = () => {
                         type="button"
                         onClick={() => setFormData({ ...formData, severity: item.value })}
                         disabled={isSubmitting}
-                        className={`p-3 rounded-lg text-center flex flex-col items-center gap-1 transition-all ${
+                        className={`p-3 rounded-xl text-center flex flex-col items-center gap-1 transition-all cursor-pointer ${
                           formData.severity === item.value
-                            ? "bg-surface-container-high shadow-cyan-inset border border-brand-cyan/30"
-                            : "bg-surface-container hover:bg-surface-container-high"
+                            ? "bg-slate-100 border-2 border-slate-800"
+                            : "bg-slate-50 border border-slate-200/80 hover:bg-slate-100/60"
                         }`}
                       >
                         <span
-                          className="material-symbols-outlined"
+                          className="material-symbols-outlined text-[20px]"
                           style={{ color: item.color }}
                         >
                           {item.icon}
                         </span>
-                        <span className="text-headline-sm text-primary font-semibold">
+                        <span className="text-xs font-bold text-slate-900">
                           {item.label}
                         </span>
-                        <span className="text-label-sm text-on-surface-variant">
+                        <span className="text-[10px] text-slate-500">
                           {item.sublabel}
                         </span>
                       </button>
@@ -456,70 +463,106 @@ const InputComplaintPage = () => {
                   </div>
                 </div>
               </div>
-            </Card>
+
+              {/* Form Action Bar on Left Side */}
+              <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex flex-wrap items-center justify-end gap-3">
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={handleSaveDraft}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200/90 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 active:scale-[0.98] transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 shadow-xs"
+                >
+                  <span className="material-symbols-outlined text-[16px] text-slate-500">save</span>
+                  <span>Simpan sebagai Draft</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={handleSubmit}
+                  className="inline-flex items-center justify-center gap-2.5 rounded-full bg-[#141414] px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-[#2B2B2B] active:scale-[0.98] disabled:cursor-wait disabled:opacity-80 shadow-sm cursor-pointer"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Menganalisis Keluhan dengan AI...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 text-cyan-400" />
+                      <span>Buat Tiket & Analisis dengan AI</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* RIGHT: AI PREVIEW */}
           <div className="xl:col-span-5 flex flex-col gap-6">
-            <Card tier="high" className="overflow-hidden shadow-cyan-inset" glow>
-              <div className="p-5 bg-surface-container flex items-center justify-between">
+            <div className="bg-white border border-slate-200/80 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] overflow-hidden">
+              <div className="p-5 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-brand-cyan text-on-primary-container flex items-center justify-center shadow-cyan-glow">
+                  <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 flex items-center justify-center">
                     <span className="material-symbols-outlined text-[20px]">psychology</span>
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-headline-sm text-primary font-bold">
+                      <h3 className="text-base font-bold text-slate-900 tracking-tight">
                         AI Complaint Assistant
                       </h3>
-                      <StatusBadge type="aiReady" label="v2.4 Neural" />
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                        v2.4 Neural
+                      </span>
                     </div>
-                    <p className="text-label-sm text-on-surface-variant">
+                    <p className="text-xs text-slate-500">
                       Modul Analisis Triase & Sentimen
                     </p>
                   </div>
                 </div>
-                <span className="h-2.5 w-2.5 rounded-full bg-brand-cyan shadow-cyan-glow animate-pulse"></span>
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
               </div>
 
               <div className="p-5 flex flex-col gap-4">
-                <p className="text-body-sm text-on-surface-variant leading-relaxed">
+                <p className="text-xs text-slate-600 leading-relaxed">
                   Setelah tiket diterbitkan, engine AI akan otomatis memproses teks
                   pengaduan secara non-medis untuk mendukung respons SOP cepat.
                 </p>
 
                 {/* Pipeline */}
-                <div className="flex flex-col gap-2 p-4 rounded-lg bg-surface-container-lowest">
-                  <span className="text-label-sm text-on-surface-variant font-semibold tracking-wider uppercase mb-1">
+                <div className="flex flex-col gap-2 p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+                  <span className="text-[10px] text-slate-500 font-semibold tracking-wider uppercase mb-1">
                     Alur Pipeline Otomatisasi
                   </span>
                   {pipelineSteps.map((step) => (
                     <div
                       key={step.num}
-                      className={`flex items-center gap-3 p-2 rounded ${
+                      className={`flex items-center gap-3 p-2 rounded-lg ${
                         step.active
-                          ? "bg-surface-container"
+                          ? "bg-white border border-slate-200 shadow-xs"
                           : step.next
-                          ? "bg-surface-container-low"
-                          : "bg-surface-container-low opacity-60"
+                          ? "bg-slate-100/80"
+                          : "bg-slate-100/40 opacity-60"
                       }`}
                     >
                       <span
                         className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${
                           step.active
-                            ? "bg-brand-cyan text-on-primary-container"
+                            ? "bg-[#141414] text-white"
                             : step.next
-                            ? "bg-surface-container-high text-brand-cyan"
-                            : "bg-surface-container-high text-on-surface-variant"
+                            ? "bg-slate-200 text-slate-800"
+                            : "bg-slate-200 text-slate-400"
                         }`}
                       >
                         {step.num}
                       </span>
                       <span
-                        className={`text-body-sm flex-1 ${
+                        className={`text-xs flex-1 ${
                           step.active
-                            ? "text-primary font-semibold"
-                            : "text-on-surface-variant"
+                            ? "text-slate-900 font-semibold"
+                            : "text-slate-600"
                         }`}
                       >
                         {step.label}
@@ -530,16 +573,16 @@ const InputComplaintPage = () => {
 
                 {/* Output Tags */}
                 <div className="flex flex-col gap-2">
-                  <span className="text-label-md text-on-surface font-semibold">
+                  <span className="text-xs font-semibold text-slate-700">
                     Output yang Akan Dihasilkan:
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {outputs.map((out, idx) => (
                       <span
                         key={idx}
-                        className={`px-2.5 py-1 rounded bg-surface-container-high ${out.color} text-label-sm flex items-center gap-1`}
+                        className="px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200/80 text-slate-700 text-xs font-medium flex items-center gap-1"
                       >
-                        <span className="material-symbols-outlined text-[12px]">
+                        <span className="material-symbols-outlined text-[13px] text-slate-500">
                           {out.icon}
                         </span>
                         {out.label}
@@ -548,52 +591,60 @@ const InputComplaintPage = () => {
                   </div>
                 </div>
 
-                <div className="p-3 rounded-lg bg-surface-container-lowest flex items-start gap-2.5">
-                  <span className="material-symbols-outlined text-on-surface-variant text-[16px] mt-0.5">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start gap-2.5">
+                  <span className="material-symbols-outlined text-slate-500 text-[16px] mt-0.5">
                     shield
                   </span>
-                  <p className="text-label-sm text-on-surface-variant leading-relaxed">
-                    <strong>Human-in-the-loop:</strong> AI memberikan analisis pendukung
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    <strong className="text-slate-800">Human-in-the-loop:</strong> AI memberikan analisis pendukung
                     dan draf balasan. Keputusan dan respons akhir tetap ditinjau oleh CS.
                   </p>
                 </div>
 
                 {/* Primary Actions */}
-                <div className="flex flex-col gap-2">
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    icon={isSubmitting ? "progress_activity" : "auto_awesome"}
-                    className="w-full"
-                    onClick={handleSubmit}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                  <button
+                    type="button"
                     disabled={isSubmitting}
-                  >
-                    {isSubmitting
-                      ? "AI sedang menganalisis..."
-                      : "Buat Tiket & Analisis dengan AI"}
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    icon="save"
-                    className="w-full"
                     onClick={handleSaveDraft}
-                    disabled={isSubmitting}
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200/90 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 active:scale-[0.98] transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 shadow-xs"
                   >
-                    Simpan sebagai Draft
-                  </Button>
+                    <span className="material-symbols-outlined text-[16px] text-slate-500">save</span>
+                    <span>Simpan sebagai Draft</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={handleSubmit}
+                    className="inline-flex items-center justify-center gap-2.5 rounded-full bg-[#141414] px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-[#2B2B2B] active:scale-[0.98] disabled:cursor-wait disabled:opacity-80 shadow-sm cursor-pointer"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <svg className="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Menganalisis Keluhan dengan AI...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 text-cyan-400" />
+                        <span>Buat Tiket & Analisis dengan AI</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Modal New Customer */}
       {showNewCustomerModal && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setShowNewCustomerModal(false)}>
-          <div className="bg-surface-container rounded-xl p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-headline-md text-primary font-semibold mb-4">Tambah Customer Baru</h3>
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4" onClick={() => setShowNewCustomerModal(false)}>
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-200" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Tambah Customer Baru</h3>
             <NewCustomerForm onSubmit={handleCreateCustomer} onCancel={() => setShowNewCustomerModal(false)} />
           </div>
         </div>

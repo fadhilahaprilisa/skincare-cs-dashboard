@@ -1,0 +1,192 @@
+{
+    "project": "Lumière Skin - AI-Powered Complaint Intelligence Platform",
+    "style_guide": {
+        "global_style": "soft glassmorphism, editorial premium beauty-tech, calm and trustworthy, airy whitespace, diffuse lighting",
+        "palette": {
+            "primary_cyan": "#00F2FE",
+            "deep_cyber_violet": "#051424",
+            "accent_violet": "#7C5CFF",
+            "lavender_wash": "#C9B8FF",
+            "rose_pearl": "#FFF0F5",
+            "canvas": "#F7F6FA"
+        },
+        "global_negative_prompt": "text, watermark, logo, brand names, distorted hands, extra fingers, plastic skin, heavy retouching, oversaturated colors, harsh shadows, clutter, stock-photo cliche, real celebrity likeness",
+        "notes": "Generate original assets only. Do not reproduce the reference portfolio's photos or branding. Subjects should reflect Indonesian users (diverse skin tones, with and without hijab)."
+    },
+    "assets": [
+        {
+            "id": "hero_mesh_background",
+            "type": "background",
+            "usage": "Landing hero, behind the glass chat panel",
+            "tool_suggestion": "CSS radial-gradients (preferred), or Midjourney/Flux for a raster fallback",
+            "aspect_ratio": "16:9",
+            "resolution": "2560x1440",
+            "prompt": "Abstract soft mesh gradient background, luminous cyan glow at the top fading into pale lavender and violet at the bottom, large blurred organic blobs, subtle film grain, no objects, no text, smooth and airy, premium beauty-tech website hero",
+            "negative_prompt": "objects, faces, text, sharp edges, high contrast, banding",
+            "output_format": "webp"
+        },
+        {
+            "id": "hero_glow_blob",
+            "type": "overlay",
+            "usage": "Blurred highlight behind the chat input",
+            "tool_suggestion": "CSS: radial-gradient + blur-3xl",
+            "aspect_ratio": "1:1",
+            "resolution": "1200x1200",
+            "prompt": "Single soft cyan-to-mint radial glow on transparent background, very diffuse edges, 40 percent opacity",
+            "negative_prompt": "hard edges, patterns, text",
+            "output_format": "png (transparent)"
+        },
+        {
+            "id": "face_scan_portrait",
+            "type": "photo",
+            "usage": "AI Analysis section: portrait with scan overlay (add the grid/brackets in SVG)",
+            "tool_suggestion": "Midjourney, Flux, or Imagen",
+            "aspect_ratio": "4:5",
+            "resolution": "1600x2000",
+            "prompt": "Close-up beauty portrait of a young Indonesian woman, natural dewy skin with visible texture, neutral calm expression, soft diffused studio light, clean white seamless background, shoulders visible, head slightly turned, editorial skincare photography, 85mm lens",
+            "negative_prompt": "heavy makeup, airbrushed skin, filters, jewelry, text",
+            "output_format": "webp",
+            "post_processing": "Overlay SVG face-mesh grid, corner brackets and dashed connector lines in primary cyan"
+        },
+        {
+            "id": "holographic_face_3d",
+            "type": "3d_render",
+            "usage": "FAQ visual card (left side)",
+            "tool_suggestion": "Midjourney, Spline, or Blender",
+            "aspect_ratio": "4:5",
+            "resolution": "1600x2000",
+            "prompt": "Translucent holographic 3D head of a woman wearing a hijab, glass and iridescent material, icy cyan and pale blue tones, soft internal glow, subtle wireframe scan lines on the face, soft gradient background in light aqua, futuristic yet gentle, centered composition",
+            "negative_prompt": "realistic skin, dark background, horror, harsh reflections, text",
+            "output_format": "png"
+        },
+        {
+            "id": "dashboard_banner_photo",
+            "type": "photo",
+            "usage": "Right side of the dashboard greeting banner",
+            "tool_suggestion": "Midjourney, Flux, or Imagen",
+            "aspect_ratio": "3:2",
+            "resolution": "1800x1200",
+            "prompt": "Serene portrait of a young Indonesian woman with eyes closed and a gentle smile, surrounded by soft pastel flowers in violet and white, dreamy diffused light, pastel violet-to-cyan gradient backdrop, high-key editorial beauty photography",
+            "negative_prompt": "busy background, strong shadows, text, saturated colors",
+            "output_format": "webp",
+            "post_processing": "Fade the left edge to transparent so it blends into the banner gradient"
+        },
+        {
+            "id": "product_cleanser",
+            "type": "product_mockup",
+            "usage": "Ticket detail and dashboard cards (product thumbnails)",
+            "tool_suggestion": "Midjourney, Flux, or Blender",
+            "aspect_ratio": "1:1",
+            "resolution": "1024x1024",
+            "prompt": "Generic unbranded skincare foaming cleanser tube, white body with a pale cyan cap, minimal label with no readable text, soft studio lighting, subtle shadow, pure white background, product photography",
+            "negative_prompt": "real brand logos, readable text, clutter, props",
+            "output_format": "png (transparent)"
+        },
+        {
+            "id": "product_serum",
+            "type": "product_mockup",
+            "usage": "Ticket detail and dashboard cards (product thumbnails)",
+            "tool_suggestion": "Midjourney, Flux, or Blender",
+            "aspect_ratio": "1:1",
+            "resolution": "1024x1024",
+            "prompt": "Generic unbranded skincare serum dropper bottle, frosted glass in pale violet with a white dropper, minimal label with no readable text, soft studio lighting, pure white background, product photography",
+            "negative_prompt": "real brand logos, readable text, clutter, props",
+            "output_format": "png (transparent)"
+        },
+        {
+            "id": "testimonial_portraits",
+            "type": "photo_set",
+            "usage": "Testimonial carousel (UMKM owners and CS agents)",
+            "tool_suggestion": "Midjourney, Flux, or Imagen",
+            "aspect_ratio": "3:4",
+            "resolution": "1200x1600",
+            "count": 3,
+            "prompt": "Natural portrait of a small business owner in Indonesia in her 30s, warm genuine smile, casual modern clothing, softly blurred workspace with skincare products in the background, natural window light, candid editorial style",
+            "variations": [
+                "woman wearing a hijab, in a small skincare workshop",
+                "woman in her 20s, headset on, customer service desk",
+                "man in his 30s, brand founder, laptop on desk"
+            ],
+            "negative_prompt": "stock-photo pose, overly polished, logos, text",
+            "output_format": "webp"
+        },
+        {
+            "id": "user_avatars",
+            "type": "avatar_set",
+            "usage": "Top bar avatar and CS agent list",
+            "tool_suggestion": "Midjourney, Flux, or DiceBear as a placeholder",
+            "aspect_ratio": "1:1",
+            "resolution": "512x512",
+            "count": 6,
+            "prompt": "Friendly head-and-shoulders avatar portrait, Indonesian young adult, soft neutral background in pale lavender, natural expression, consistent lighting across the set",
+            "negative_prompt": "text, busy background, accessories that hide the face",
+            "output_format": "webp"
+        },
+        {
+            "id": "brand_logo_mark",
+            "type": "logo",
+            "usage": "Sidebar, favicon, login page",
+            "tool_suggestion": "Figma (manual) or Recraft/Ideogram for exploration, then redraw as SVG",
+            "aspect_ratio": "1:1",
+            "resolution": "vector",
+            "prompt": "Minimal logomark for a skincare AI brand named Lumière Skin: a stylized droplet merged with a small four-point sparkle, rounded geometry, gradient from cyan to violet, flat vector, centered on a rounded-square, no text",
+            "negative_prompt": "photorealism, complex detail, text, mascots",
+            "output_format": "svg"
+        },
+        {
+            "id": "icon_set",
+            "type": "icons",
+            "usage": "Navigation, cards, status",
+            "tool_suggestion": "Use lucide-react (already compatible); generate custom ones only if needed",
+            "prompt": "Set of 24 thin-line 1.5px rounded icons, consistent 24px grid: inbox, ticket, sparkle AI, droplet, shield-check, bar-chart, users, settings, bell, search, send, mic, paperclip, clock, flag-alert, check-circle",
+            "output_format": "svg"
+        },
+        {
+            "id": "concept_diagram_nodes",
+            "type": "illustration",
+            "usage": "Hub-and-spoke section: one complaint, fully understood",
+            "tool_suggestion": "Build in React and SVG (preferred)",
+            "prompt": "Central circular node labelled Complaint Understanding connected by dashed curved lines to five floating chips: Product, Batch Code, Symptom, Severity, Sentiment. White cards with hairline borders, tiny colored dot labels, soft shadows, lots of whitespace",
+            "output_format": "react component"
+        },
+        {
+            "id": "ai_empty_state_icon",
+            "type": "icon",
+            "usage": "AI Analysis chat empty state",
+            "tool_suggestion": "Figma or Recraft",
+            "aspect_ratio": "1:1",
+            "resolution": "512x512",
+            "prompt": "Soft speech-bubble icon containing the letters AI, pale lavender tint on white, subtle inner glow, minimal, flat with a gentle gradient",
+            "negative_prompt": "harsh outlines, 3D bevel, dark colors",
+            "output_format": "svg"
+        },
+        {
+            "id": "footer_wordmark",
+            "type": "typography",
+            "usage": "Oversized cropped brand wordmark in the footer",
+            "tool_suggestion": "Pure CSS text (Playfair Display Italic)",
+            "prompt": "Oversized wordmark 'Lumière Skin' in Playfair Display Italic, near-black, 18vw, cropped at the bottom by the viewport edge",
+            "output_format": "css"
+        },
+        {
+            "id": "grain_texture",
+            "type": "texture",
+            "usage": "Subtle noise over gradients to prevent banding",
+            "tool_suggestion": "Generate procedurally (SVG feTurbulence) or any noise PNG",
+            "aspect_ratio": "1:1",
+            "resolution": "512x512",
+            "prompt": "Seamless fine monochrome film grain noise tile, low contrast, tileable",
+            "output_format": "png (tileable)"
+        },
+        {
+            "id": "og_social_image",
+            "type": "social_preview",
+            "usage": "Open Graph / competition submission cover",
+            "tool_suggestion": "Figma using the generated assets above",
+            "aspect_ratio": "1.91:1",
+            "resolution": "1200x630",
+            "prompt": "Composite cover: cyan-to-violet mesh gradient, centered serif headline 'Turn complaints into insight', glass dashboard card preview, brand logomark top left, generous whitespace",
+            "output_format": "png"
+        }
+    ]
+}

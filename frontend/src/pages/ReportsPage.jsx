@@ -55,36 +55,18 @@ const ReportsPage = () => {
     URL.revokeObjectURL(url);
   };
 
-  const handleGenerateCustom = () => {
-    alert("Custom report generator coming soon! Untuk demo, gunakan Quick Export di atas.");
-  };
-
   return (
     <DashboardLayout
       role="admin"
       topbarProps={{
-        title: "Reports",
-        subtitle: "Laporan dan export data customer service",
+        title: "Reports & Analytics",
+        subtitle: "Laporan periodik dan export data customer service",
       }}
     >
       <div className="p-6 space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div>
-            <h1 className="text-headline-lg text-primary font-bold tracking-tight">
-              Reports & Analytics
-            </h1>
-            <p className="text-body-sm text-on-surface-variant mt-1">
-              Download laporan periodik dan export data custom
-            </p>
-          </div>
-          <Button variant="primary" size="sm" icon="add" onClick={handleGenerateCustom}>
-            Generate Custom Report
-          </Button>
-        </div>
-
         {/* Quick Export */}
-        <Card tier="base" className="p-6">
-          <h3 className="text-headline-sm text-primary font-semibold mb-4">
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)]">
+          <h3 className="text-base font-bold text-slate-900 tracking-tight mb-4">
             Quick Export
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -96,47 +78,49 @@ const ReportsPage = () => {
               <button
                 key={idx}
                 onClick={() => handleDownload(item.label)}
-                className="p-4 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors flex items-center gap-3 text-left"
+                className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 hover:bg-slate-100 transition-colors flex items-center gap-3 text-left cursor-pointer"
               >
-                <div className="w-10 h-10 rounded-lg bg-brand-cyan/10 flex items-center justify-center text-brand-cyan shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-700 shrink-0">
                   <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
                 </div>
-                <span className="text-body-sm text-on-surface font-medium">{item.label}</span>
+                <span className="text-xs font-semibold text-slate-800">{item.label}</span>
               </button>
             ))}
           </div>
-        </Card>
+        </div>
 
         {/* Reports List */}
-        <Card tier="base" className="overflow-hidden">
-          <div className="p-5 bg-surface-container-high/40 flex items-center justify-between">
-            <h3 className="text-headline-sm text-primary font-semibold">
+        <div className="bg-white border border-slate-200/80 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)] overflow-hidden">
+          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+            <h3 className="text-base font-bold text-slate-900 tracking-tight">
               Available Reports
             </h3>
-            <span className="text-label-sm text-on-surface-variant">
+            <span className="text-xs text-slate-500">
               {reports.length} laporan tersedia
             </span>
           </div>
 
-          <div className="divide-y divide-outline-variant/20">
+          <div className="divide-y divide-slate-100 bg-white">
             {reports.map((r, idx) => (
               <div
                 key={idx}
-                className="p-4 flex items-center justify-between hover:bg-surface-container-high/40 transition-colors"
+                className="p-4 flex items-center justify-between hover:bg-slate-50/60 transition-colors"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-brand-cyan">
+                  <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700">
                     <span className="material-symbols-outlined text-[24px]">{r.icon}</span>
                   </div>
                   <div>
-                    <div className="text-headline-sm text-primary font-semibold">
+                    <div className="text-sm font-bold text-slate-900">
                       {r.name}
                     </div>
-                    <div className="text-body-sm text-on-surface-variant mt-0.5">
+                    <div className="text-xs text-slate-500 mt-0.5">
                       {r.desc}
                     </div>
-                    <div className="flex items-center gap-3 mt-1 text-label-sm text-on-surface-variant">
-                      <StatusBadge type="processing" label={r.format} />
+                    <div className="flex items-center gap-3 mt-1.5 text-xs text-slate-400">
+                      <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold text-[10px] uppercase">
+                        {r.format}
+                      </span>
                       <span>{r.size}</span>
                       <span>•</span>
                       <span>{r.date}</span>
@@ -145,14 +129,15 @@ const ReportsPage = () => {
                 </div>
                 <button
                   onClick={() => handleDownload(r.name)}
-                  className="p-2 rounded-lg bg-surface-container hover:bg-brand-cyan hover:text-on-primary-container transition-colors"
+                  className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+                  title="Download"
                 >
-                  <span className="material-symbols-outlined text-[20px]">download</span>
+                  <span className="material-symbols-outlined text-[18px]">download</span>
                 </button>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       </div>
     </DashboardLayout>
   );
