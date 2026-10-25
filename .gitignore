@@ -1,16 +1,1 @@
-# Virtual Environment
-venv/
-.venv/
-__pycache__/
-*.pyc
 
-# Environment variables (jangan bocorkan API Key!)
-.env
-
-# IDE
-.vscode/
-.idea/
-
-node_modules/
-.env
-dist/
