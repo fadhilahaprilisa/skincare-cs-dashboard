@@ -35,7 +35,7 @@ async def export_tickets_csv(
 
     for t in tickets:
         writer.writerow([
-            f"#TK-{str(t.id).padStart(4, '0')}",
+            f"#TK-{str(t.id).zfill(4)}",
             t.customer_name or "",
             t.product or "",
             t.product_batch or "",

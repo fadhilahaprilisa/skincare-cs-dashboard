@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import Card from "../components/ui/Card";
@@ -8,38 +8,20 @@ import Input from "../components/ui/Input";
 import Textarea from "../components/ui/Textarea";
 import StatusBadge from "../components/ui/StatusBadge";
 import { ticketsAPI, getErrorMessage } from "../lib/api";
-
-const NewCustomerForm = ({ onSubmit, onCancel }) => {
-  const [name, setName] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
-  const [error, setError] = useState("");
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!name.trim()) {
-      setError("Nama wajib diisi");
-      return;
-    }
-    onSubmit({ name, whatsapp });
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && (
-        <div className="p-2 rounded bg-[#FF4D4D]/10 text-[#FF4D4D] text-body-sm">{error}</div>
-      )}
-      <Input label="Nama Customer" value={name} onChange={(e) => setName(e.target.value)} required />
-      <Input label="WhatsApp (opsional)" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} />
-      <div className="flex justify-end gap-2">
-        <Button variant="secondary" size="sm" type="button" onClick={onCancel}>Batal</Button>
-        <Button variant="primary" size="sm" type="submit" icon="check">Simpan</Button>
-      </div>
-    </form>
-  );
-};
+import { tokenStorage } from "../lib/auth";
+import { useToast } from "../context/ToastContext";
 
 const InputComplaintPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const toast = useToast();
+
+  // Deteksi role aktif dari URL path atau tokenStorage
+  const currentUser = tokenStorage.getUser();
+  const currentRole = location.pathname.startsWith("/admin")
+    ? "admin"
+    : (currentUser?.role || "cs");
+
   const [formData, setFormData] = useState({
     customerName: "",
     whatsapp: "",
@@ -52,9 +34,8 @@ const InputComplaintPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  // State baru untuk attachment & customer baru
+  // State untuk attachment
   const [attachments, setAttachments] = useState([]);
-  const [showNewCustomerModal, setShowNewCustomerModal] = useState(false);
 
   const handleUploadAttachment = () => {
     const fakeFile = {
@@ -63,6 +44,9 @@ const InputComplaintPage = () => {
       type: "JPG",
     };
     setAttachments([...attachments, fakeFile]);
+    toast.success("Lampiran Foto Berhasil Diunggah", {
+      description: fakeFile.name,
+    });
   };
 
   const handleRemoveAttachment = (index) => {
@@ -70,18 +54,37 @@ const InputComplaintPage = () => {
   };
 
   const handleSaveDraft = () => {
+    const previousDraft = localStorage.getItem("complaint_draft");
     localStorage.setItem("complaint_draft", JSON.stringify(formData));
-    alert("Draft tersimpan!");
-  };
-
-  const handleOpenNewCustomer = () => {
-    setShowNewCustomerModal(true);
-  };
-
-  const handleCreateCustomer = (newCustomer) => {
-    setFormData({ ...formData, customerName: newCustomer.name, whatsapp: newCustomer.whatsapp || formData.whatsapp });
-    setShowNewCustomerModal(false);
-    alert(`Customer "${newCustomer.name}" berhasil dibuat!`);
+    
+    toast.success("Draf Disimpan", {
+      description: "Data keluhan disimpan ke penyimpanan lokal.",
+      action: {
+        label: "Undo",
+        onClick: () => {
+          if (previousDraft) {
+            localStorage.setItem("complaint_draft", previousDraft);
+            try {
+              setFormData(JSON.parse(previousDraft));
+            } catch (e) {
+              // ignore
+            }
+          } else {
+            localStorage.removeItem("complaint_draft");
+            setFormData({
+              customerName: "",
+              whatsapp: "",
+              product: "Ceramide Barrier Moisturizer",
+              productBatch: "#GB-2024A",
+              category: "Iritasi",
+              complaint: "",
+              severity: "Moderate",
+            });
+          }
+          toast.info("Penyimpanan Draf Dibatalkan (Undo)");
+        },
+      },
+    });
   };
 
   const categories = ["Iritasi", "Reaksi Kulit", "Produk", "Pengiriman", "Kemasan", "Lainnya"];
@@ -113,20 +116,37 @@ const InputComplaintPage = () => {
 
     if (!formData.customerName.trim()) {
       setError("Nama customer wajib diisi");
+      toast.warning("Form Belum Lengkap", {
+        description: "Nama customer wajib diisi sebelum analisis.",
+      });
       return;
     }
     if (!formData.complaint.trim()) {
       setError("Deskripsi keluhan wajib diisi");
+      toast.warning("Form Belum Lengkap", {
+        description: "Deskripsi keluhan wajib diisi.",
+      });
       return;
     }
     if (formData.complaint.trim().length < 20) {
       setError("Deskripsi keluhan minimal 20 karakter");
+      toast.warning("Deskripsi Terlalu Singkat", {
+        description: "Deskripsi keluhan minimal 20 karakter agar AI akurat.",
+      });
       return;
     }
 
     setIsSubmitting(true);
+    const toastId = "create-ticket-process";
+
+    // 1. Tampilkan toast loading: "Menganalisis keluhan dengan AI..."
+    toast.loading("Menganalisis keluhan dengan AI...", {
+      id: toastId,
+      description: "Memproses triase NLP, deteksi gejala, dan draf SOP...",
+    });
+
     try {
-      await ticketsAPI.create({
+      const createdTicket = await ticketsAPI.create({
         customer_name: formData.customerName,
         complaint_text: formData.complaint,
         product: formData.product,
@@ -134,52 +154,73 @@ const InputComplaintPage = () => {
         category: formData.category,
         severity: formData.severity,
       });
-      navigate("/cs/tickets");
+
+      const ticketCode = createdTicket?.id 
+        ? `#TK-${String(createdTicket.id).padStart(4, "0")}` 
+        : "Tiket Baru";
+
+      // 2. Setelah selesai, ubah menjadi toast success dengan action button "Lihat Tiket"
+      toast.success(`${ticketCode} Berhasil Dibuat`, {
+        id: toastId,
+        description: "Analisis AI selesai dan draf balasan SOP telah tersedia.",
+        action: {
+          label: "Lihat Tiket",
+          onClick: () => {
+            if (createdTicket?.id) {
+              navigate(`/cs/tickets/${createdTicket.id}`);
+            } else {
+              navigate(currentRole === "admin" ? "/admin/tickets" : "/cs/tickets");
+            }
+          },
+        },
+      });
+
+      navigate(currentRole === "admin" ? "/admin/tickets" : "/cs/tickets");
     } catch (err) {
-      setError(getErrorMessage(err));
+      const errMsg = getErrorMessage(err);
+      setError(errMsg);
+      toast.error("Gagal Membuat Tiket", {
+        id: toastId,
+        description: errMsg,
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const dashboardRoute = currentRole === "admin" ? "/admin/dashboard" : "/cs/dashboard";
+
   return (
     <DashboardLayout
-      role="cs"
+      role={currentRole}
       topbarProps={{
         title: "Input Keluhan Customer",
-        subtitle: "Catat keluhan customer untuk dianalisis AI",
+        subtitle: "Catat keluhan customer untuk dibuat tiket dan dianalisis secara instan dengan AI.",
+        showSearch: false,
         showInputButton: false,
       }}
     >
       <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="flex flex-col gap-1">
-            <nav className="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+        {/* Page Toolbar (Breadcrumbs + Mode Tag + Action Batal) */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <nav className="flex items-center gap-1.5 text-xs text-slate-400">
               <button
-                onClick={() => navigate("/cs/dashboard")}
+                onClick={() => navigate(dashboardRoute)}
                 className="cursor-pointer hover:text-slate-900 transition-colors"
               >
                 Dashboard
               </button>
               <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-              <span className="text-slate-600 font-medium">New Complaint Intake</span>
+              <span className="text-slate-900 font-semibold">New Complaint Intake</span>
             </nav>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                Input Keluhan Customer
-              </h1>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-800 text-xs font-semibold border border-slate-200">
-                Triage Intake Mode
-              </span>
-            </div>
-            <p className="text-sm text-slate-500 max-w-2xl">
-              Catat keluhan customer untuk dibuat menjadi tiket dan dianalisis secara instan
-              dengan bantuan AI Lumière Neural.
-            </p>
+
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[11px] font-semibold border border-slate-200">
+              Triage Intake Mode
+            </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Button
               variant="secondary"
               size="sm"
@@ -225,15 +266,7 @@ const InputComplaintPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={handleOpenNewCustomer}
-                    className="text-slate-700 hover:text-slate-950 text-xs font-semibold flex items-center gap-1 cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined text-[14px]">person_add</span>
-                    + Customer Baru
-                  </button>
-                  <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                  <span className="text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
                     Langkah 1/2
                   </span>
                 </div>
@@ -639,16 +672,6 @@ const InputComplaintPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Modal New Customer */}
-      {showNewCustomerModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4" onClick={() => setShowNewCustomerModal(false)}>
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-200" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Tambah Customer Baru</h3>
-            <NewCustomerForm onSubmit={handleCreateCustomer} onCancel={() => setShowNewCustomerModal(false)} />
-          </div>
-        </div>
-      )}
     </DashboardLayout>
   );
 };

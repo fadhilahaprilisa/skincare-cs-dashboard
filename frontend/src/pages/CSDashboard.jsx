@@ -93,11 +93,6 @@ const CSDashboard = () => {
 
           {/* Left Text Content */}
           <div className="p-6 sm:p-8 lg:p-10 relative z-10 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 border border-violet-200/60 text-[11px] font-semibold text-[#7C5CFF] tracking-wider uppercase mb-3 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Lumière CS Workspace v2.4</span>
-            </div>
-
             <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#1E1B4B] tracking-tight">
               Good Morning, {userName}
             </h1>

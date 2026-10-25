@@ -7,6 +7,7 @@ import StatusBadge from "../components/ui/StatusBadge";
 import Textarea from "../components/ui/Textarea";
 import ConceptDiagram from "../components/domain/ConceptDiagram";
 import { ticketsAPI, getErrorMessage } from "../lib/api";
+import { useToast } from "../context/ToastContext";
 import { 
   Sparkles, 
   Send, 
@@ -26,6 +27,7 @@ import {
 const AIAnalysisPage = () => {
   const navigate = useNavigate();
   const { ticketId } = useParams();
+  const toast = useToast();
   const [ticket, setTicket] = useState(null);
   const [allTickets, setAllTickets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -72,7 +74,9 @@ const AIAnalysisPage = () => {
   const handleCopy = () => {
     if (!draftReply) return;
     navigator.clipboard.writeText(draftReply);
-    alert("Draf respon AI berhasil disalin ke clipboard!");
+    toast.copy("Disalin ke clipboard", {
+      description: "Draf respons AI siap dikirimkan.",
+    });
   };
 
   const handleSend = async () => {
@@ -80,10 +84,18 @@ const AIAnalysisPage = () => {
     setIsUpdating(true);
     try {
       await ticketsAPI.updateStatus(ticket.id, "RESOLVED");
-      alert("Respons terkirim ke customer! Tiket berhasil diselesaikan.");
+      toast.success("Respons Terkirim", {
+        description: "Respons telah dikirim dan tiket berhasil diselesaikan.",
+        action: {
+          label: "Daftar Tiket",
+          onClick: () => navigate("/cs/tickets"),
+        },
+      });
       navigate("/cs/tickets");
     } catch (err) {
-      alert(`Gagal mengirim respon: ${getErrorMessage(err)}`);
+      toast.error("Gagal Mengirim Respons", {
+        description: getErrorMessage(err),
+      });
     } finally {
       setIsUpdating(false);
     }

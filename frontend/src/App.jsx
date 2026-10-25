@@ -23,6 +23,9 @@ import CSAgentsPage from './pages/CSAgentsPage';
 import ReportsPage from './pages/ReportsPage';
 import AdminSettingsPage from './pages/AdminSettingsPage';
 
+import { ToastProvider } from './context/ToastContext';
+import { SidebarProvider } from './context/SidebarContext';
+
 const Placeholder = ({ title }) => (
   <div className="p-8">
     <div className="bg-surface-container-low rounded-xl p-12 text-center border border-outline-variant/30">
@@ -39,7 +42,9 @@ const Placeholder = ({ title }) => (
 
 function App() {
   return (
-    <Routes>
+    <SidebarProvider>
+      <ToastProvider>
+        <Routes>
       {/* ===== PUBLIC ===== */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/landing" element={<LandingPage />} />
@@ -133,7 +138,9 @@ function App() {
       {/* ===== DEFAULT REDIRECT ===== */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+        </Routes>
+      </ToastProvider>
+    </SidebarProvider>
   );
 }
 

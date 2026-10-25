@@ -7,6 +7,8 @@ import Button from "../components/ui/Button";
 import Textarea from "../components/ui/Textarea";
 import { ticketsAPI, getErrorMessage } from "../lib/api";
 import { exportAPI } from "../lib/api";
+import { useToast } from "../context/ToastContext";
+import { useSidebar } from "../context/SidebarContext";
 import productSerum from "../assets/product_serum.jpg";
 import productCleanser from "../assets/product_cleanser.jpg";
 
@@ -19,6 +21,8 @@ const getProductThumbnail = (name = "") => {
 const TicketDetailPage = () => {
   const { ticketId } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
+  const { isCollapsed } = useSidebar();
   const [ticket, setTicket] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -51,8 +55,13 @@ const TicketDetailPage = () => {
 
   // Tandai prioritas
   const handleTogglePriority = () => {
-    setIsPriority(!isPriority);
-    // Optional: call API to update severity
+    const nextState = !isPriority;
+    setIsPriority(nextState);
+    toast.info(nextState ? "Prioritas Diaktifkan" : "Prioritas Dinonaktifkan", {
+      description: nextState 
+        ? "Tiket ini sekarang ditandai perhatian khusus." 
+        : "Status prioritas telah dikembalikan ke normal.",
+    });
   };
 
   // Eskalasi
@@ -61,7 +70,9 @@ const TicketDetailPage = () => {
   };
 
   const confirmEscalate = () => {
-    alert("Tiket berhasil dieskalasi ke Dokter Konsultan (Dr. Amanda, Sp.KK)");
+    toast.success("Tiket Berhasil Dieskalasi", {
+      description: "Dieskalasi ke Dokter Konsultan (Dr. Amanda, Sp.KK)",
+    });
     setShowEscalateModal(false);
   };
 
@@ -72,12 +83,29 @@ const TicketDetailPage = () => {
 
   // Simpan Draf
   const handleSaveDraft = async () => {
+    const previousDraft = localStorage.getItem(`draft_ticket_${ticket.id}`);
     try {
-      // Simpan ke localStorage sebagai "draft"
       localStorage.setItem(`draft_ticket_${ticket.id}`, draftReply);
-      alert("Draf tersimpan!");
+      toast.success("Draf Disimpan", {
+        description: "Perubahan teks balasan berhasil disimpan.",
+        action: {
+          label: "Undo",
+          onClick: () => {
+            if (previousDraft !== null) {
+              localStorage.setItem(`draft_ticket_${ticket.id}`, previousDraft);
+              setDraftReply(previousDraft);
+            } else {
+              localStorage.removeItem(`draft_ticket_${ticket.id}`);
+              setDraftReply(ticket.ai_draft_reply || "");
+            }
+            toast.info("Penyimpanan Draf Dibatalkan (Undo)");
+          },
+        },
+      });
     } catch (err) {
-      alert("Gagal menyimpan draf");
+      toast.error("Gagal Menyimpan Draf", {
+        description: "Tidak dapat mengakses penyimpanan browser.",
+      });
     }
   };
 
@@ -87,17 +115,25 @@ const TicketDetailPage = () => {
     setIsUpdating(true);
     try {
       await ticketsAPI.updateStatus(ticket.id, "RESOLVED");
+      toast.success("Tiket Berhasil Ditutup", {
+        description: `#TK-${String(ticket.id).padStart(4, "0")} telah berstatus RESOLVED.`,
+      });
       navigate("/cs/tickets");
     } catch (err) {
-      alert(getErrorMessage(err));
+      toast.error("Gagal Menutup Tiket", {
+        description: getErrorMessage(err),
+      });
     } finally {
       setIsUpdating(false);
     }
   };
 
   const handleCopyDraft = () => {
+    if (!draftReply) return;
     navigator.clipboard.writeText(draftReply);
-    alert("Draf berhasil disalin!");
+    toast.copy("Disalin ke clipboard", {
+      description: "Draf teks respons siap digunakan.",
+    });
   };
 
   const handleSendResponse = async () => {
@@ -105,10 +141,14 @@ const TicketDetailPage = () => {
     setIsUpdating(true);
     try {
       await ticketsAPI.updateStatus(ticket.id, "RESOLVED");
-      alert("Tiket berhasil diselesaikan!");
+      toast.success("Tiket Berhasil Diselesaikan", {
+        description: `Respons terkirim ke customer ${ticket.customer_name}.`,
+      });
       navigate("/cs/tickets");
     } catch (err) {
-      alert(`Gagal: ${getErrorMessage(err)}`);
+      toast.error("Gagal Menyelesaikan Tiket", {
+        description: getErrorMessage(err),
+      });
     } finally {
       setIsUpdating(false);
     }
@@ -465,7 +505,11 @@ const TicketDetailPage = () => {
         </div>
 
         {/* Bottom Action Bar */}
-        <div className="fixed bottom-0 left-72 right-0 bg-white/95 backdrop-blur-md px-6 py-3 z-40 shadow-[0_-4px_24px_rgba(15,23,42,0.06)] border-t border-slate-200/80">
+        <div 
+          className={`fixed bottom-0 right-0 bg-white/95 backdrop-blur-md px-6 py-3 z-40 shadow-[0_-4px_24px_rgba(15,23,42,0.06)] border-t border-slate-200/80 transition-all duration-300 ease-in-out ${
+            isCollapsed ? "left-[72px]" : "left-64"
+          }`}
+        >
           <div className="flex flex-col md:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <span className="material-symbols-outlined text-slate-700 text-[22px]">

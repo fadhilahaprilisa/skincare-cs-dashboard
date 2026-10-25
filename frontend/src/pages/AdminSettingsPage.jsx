@@ -4,8 +4,10 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import avatarFemale from "../assets/avatar_female.jpg";
 import avatarMale from "../assets/avatar_male.jpg";
+import { useToast } from "../context/ToastContext";
 
 const AdminSettingsPage = () => {
+  const toast = useToast();
   const [profile, setProfile] = useState(() => {
     const saved = localStorage.getItem("user_profile_admin");
     if (saved) {
@@ -46,7 +48,9 @@ const AdminSettingsPage = () => {
       })
     );
     window.dispatchEvent(new Event("profile-updated"));
-    alert("Profil dan pengaturan Admin berhasil disimpan!");
+    toast.success("Pengaturan Disimpan", {
+      description: "Profil dan preferensi Admin berhasil diperbarui.",
+    });
   };
 
   const currentAvatar = profile.gender === "female" ? avatarFemale : avatarMale;

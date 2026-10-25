@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { currentUser } from "../../data/mockData";
 import avatarFemale from "../../assets/avatar_female.jpg";
 import avatarMale from "../../assets/avatar_male.jpg";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, PanelLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useSidebar } from "../../context/SidebarContext";
 
 export const TopBar = ({ 
   title, 
@@ -14,6 +15,7 @@ export const TopBar = ({
   rightContent = null,
 }) => {
   const navigate = useNavigate();
+  const { isCollapsed, toggleSidebar } = useSidebar();
   const baseUser = role === "admin" ? currentUser.admin : currentUser.cs;
 
   // State to hold profile and gender (persisted in localStorage)
@@ -56,22 +58,42 @@ export const TopBar = ({
   const avatarSrc = gender === "male" ? avatarMale : avatarFemale;
 
   return (
-    <header className="fixed top-0 left-72 right-0 h-20 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 z-40 flex items-center justify-between px-6 transition-all">
-      {/* Title Section */}
-      <div className="flex flex-col">
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">{title}</h1>
-        {subtitle && (
-          <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
-        )}
+    <header 
+      className={`fixed top-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/80 z-40 flex items-center justify-between px-6 transition-all duration-300 ease-in-out ${
+        isCollapsed ? "left-[72px]" : "left-64"
+      }`}
+    >
+      {/* Title Section with Compact Typography */}
+      <div className="flex items-center gap-3 min-w-0">
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          className="lg:hidden p-1.5 -ml-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+          title="Toggle Sidebar"
+          aria-label="Toggle Sidebar"
+        >
+          <PanelLeft className="w-4 h-4" />
+        </button>
+
+        <div className="flex flex-col min-w-0">
+          <h1 className="text-sm md:text-base font-semibold text-slate-900 leading-tight truncate">
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="text-xs text-slate-500 leading-normal truncate max-w-md hidden sm:block mt-0.5">
+              {subtitle}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Right Section */}
-      <div className="flex items-center gap-3.5">
+      <div className="flex items-center gap-3">
         {showSearch && (
           <div className="relative flex items-center">
-            <Search className="w-4 h-4 absolute left-3.5 text-slate-400 pointer-events-none" />
+            <Search className="w-3.5 h-3.5 absolute left-3 text-slate-400 pointer-events-none" />
             <input
-              className="w-64 lg:w-72 bg-slate-100/80 border border-slate-200 pl-10 pr-3.5 py-2 rounded-full text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-slate-400 transition-all"
+              className="h-9 w-52 sm:w-60 lg:w-72 bg-slate-100/80 border border-slate-200 pl-9 pr-3.5 py-1.5 rounded-full text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-slate-400 transition-all"
               placeholder="Cari tiket, pelanggan, atau SKU..."
               type="text"
             />
@@ -81,9 +103,9 @@ export const TopBar = ({
         {showInputButton && (
           <button 
             onClick={() => navigate(role === "admin" ? "/admin/new-complaint" : "/cs/new-complaint")}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#141414] text-white text-xs md:text-sm font-medium hover:bg-[#2B2B2B] active:bg-[#0A0A0A] transition-colors cursor-pointer shadow-none"
+            className="h-9 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#141414] text-white text-xs font-medium hover:bg-[#2B2B2B] active:bg-[#0A0A0A] transition-colors cursor-pointer shadow-none shrink-0"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             <span>Input Keluhan</span>
           </button>
         )}
@@ -91,8 +113,8 @@ export const TopBar = ({
         {rightContent}
 
         {/* User Profile with Dynamic Gender Avatar */}
-        <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
-          <div className="relative w-9 h-9 rounded-full overflow-hidden ring-2 ring-[#7C5CFF]/30 shadow-sm shrink-0">
+        <div className="flex items-center gap-2.5 pl-3 border-l border-slate-200 shrink-0">
+          <div className="relative w-8 h-8 rounded-full overflow-hidden ring-2 ring-[#7C5CFF]/25 shadow-xs shrink-0">
             <img 
               src={avatarSrc} 
               alt={displayName} 
@@ -100,10 +122,10 @@ export const TopBar = ({
             />
           </div>
           <div className="hidden xl:flex flex-col text-left">
-            <span className="text-xs font-semibold text-[#1E1B4B] leading-none">
+            <span className="text-xs font-semibold text-slate-900 leading-tight truncate max-w-[120px]">
               {displayName}
             </span>
-            <span className="text-[11px] text-[#7C5CFF] font-medium leading-tight mt-1">
+            <span className="text-[10px] text-[#7C5CFF] font-medium leading-tight mt-0.5">
               {baseUser.roleLabel}
             </span>
           </div>
