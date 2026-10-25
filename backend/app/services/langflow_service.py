@@ -1,82 +1,170 @@
 import httpx
+import json
+import re
 from app.core.config import settings
 
-async def call_langflow_workflow(user_complaint: str):
+
+def _extract_structured_analysis(complaint: str, ai_text: str) -> dict:
     """
-    Fungsi ini mengirim keluhan pelanggan ke API Langflow.
-    Mengembalikan dictionary berisi 'analysis' (dari Node 1) dan 'draft_reply' (dari Node 2).
+    Extract structured analysis from AI response.
+    Parses keywords to determine symptoms, severity, sentiment.
     """
-    async with httpx.AsyncClient(timeout=60.0) as client:
-        # Payload standar yang diminta oleh Langflow
+    text_lower = (complaint + " " + ai_text).lower()
+
+    # ===== SYMPTOMS DETECTION =====
+    symptom_map = {
+        "kemerahan": "Kemerahan Kulit (Redness)",
+        "merah": "Kemerahan Kulit (Redness)",
+        "redness": "Kemerahan Kulit (Redness)",
+        "perih": "Sensasi Perih (Burning)",
+        "panas": "Sensasi Panas (Hot Sensation)",
+        "mengelupas": "Pengelupasan Kulit (Peeling)",
+        "peeling": "Pengelupasan Kulit (Peeling)",
+        "gatal": "Gatal (Itching)",
+        "bruntusan": "Bruntusan (Small Bumps)",
+        "jerawat": "Breakout (Acne)",
+        "kering": "Kulit Kering (Dryness)",
+        "iritasi": "Iritasi Kulit (Irritation)",
+        "bengkak": "Pembengkakan (Swelling)",
+    }
+
+    detected_symptoms = []
+    for keyword, symptom_name in symptom_map.items():
+        if keyword in text_lower and symptom_name not in detected_symptoms:
+            detected_symptoms.append(symptom_name)
+
+    if not detected_symptoms:
+        detected_symptoms = ["Reaksi Kulit Umum"]
+
+    detected_symptoms = detected_symptoms[:3]  # Max 3 symptoms
+
+    # ===== SEVERITY DETECTION =====
+    severity = "Moderate"
+    severity_percentage = 58
+
+    severe_keywords = ["parah", "sangat", "hebat", "banget", "akut", "takut", "mengelupas", "bernanah"]
+    mild_keywords = ["sedikit", "ringan", "kadang", "kecil"]
+
+    if any(k in text_lower for k in severe_keywords):
+        severity = "High"
+        severity_percentage = 82
+    elif any(k in text_lower for k in mild_keywords):
+        severity = "Low"
+        severity_percentage = 32
+
+    # ===== SENTIMENT DETECTION =====
+    sentiment = "Concerned"
+    sentiment_score = 42
+
+    angry_keywords = ["marah", "kecewa", "buruk", "tidak cocok", "parah banget", "mau komplain"]
+    positive_keywords = ["terima kasih", "bagus", "suka", "puas", "membantu"]
+
+    if any(k in text_lower for k in angry_keywords):
+        sentiment = "Angry"
+        sentiment_score = 25
+    elif any(k in text_lower for k in positive_keywords):
+        sentiment = "Positive"
+        sentiment_score = 78
+    elif any(k in text_lower for k in ["cemas", "khawatir", "takut", "panik", "bingung"]):
+        sentiment = "Concerned"
+        sentiment_score = 38
+    else:
+        sentiment = "Neutral"
+        sentiment_score = 55
+
+    # ===== KEY CONCERN =====
+    if severity == "High":
+        key_concern = "Potensi iritasi akut yang memerlukan tindakan segera dan pemantauan intensif."
+    elif severity == "Moderate":
+        key_concern = "Potensi iritasi ringan pasca-adaptasi formula. Bukan infeksi maupun reaksi alergi sistemik."
+    else:
+        key_concern = "Reaksi ringan yang dapat diatasi dengan penyesuaian rutinitas skincare."
+
+    # ===== RECOMMENDATION =====
+    recommendation = (
+        "Berikan tanggapan yang menenangkan, akui kecemasan customer secara tulus. "
+        "Sarankan untuk menghentikan sementara pemakaian produk dan gunakan pelembap dasar. "
+        "Anjurkan konsultasi ke dokter spesialis bila keluhan menetap >48 jam. "
+        "Dilarang membuat diagnosis medis definitif."
+    )
+
+    return {
+        "symptoms": detected_symptoms,
+        "severity_level": severity,
+        "severity_percentage": severity_percentage,
+        "sentiment": sentiment,
+        "sentiment_score": sentiment_score,
+        "key_concern": key_concern,
+        "recommendation": recommendation,
+    }
+
+
+async def call_langflow_workflow(user_complaint: str, product: str = "", category: str = ""):
+    """
+    Call Langflow API. Returns structured analysis + draft reply.
+    """
+    async with httpx.AsyncClient(timeout=90.0) as client:
         payload = {
             "input_value": user_complaint,
             "output_type": "chat",
             "input_type": "chat",
         }
-        
-        # Header autentikasi (mengambil dari file .env via settings)
         headers = {
             "x-api-key": settings.LANGFLOW_API_KEY,
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
+        ai_text = ""
         try:
-            # Kirim POST request ke Langflow
             response = await client.post(
-                settings.LANGFLOW_API_URL, 
-                json=payload, 
-                headers=headers
+                settings.LANGFLOW_API_URL, json=payload, headers=headers
             )
-            
-            # Jika status response bukan 200, lempar error
             response.raise_for_status()
-            
-            # Ambil data JSON dari response
             data = response.json()
 
-            # ---------- PARSING HASIL DARI LANGFLOW ----------
-            # Struktur standar Langflow:
-            # data['outputs'][0]['outputs'][0]['results']['message']['text']
-            outputs = data.get("outputs", [])
-            
-            if outputs and len(outputs) > 0:
-                # Ambil output pertama (biasanya node terakhir jika chaining)
-                first_output = outputs[0].get("outputs", [{}])[0]
-                results = first_output.get("results", {})
-                message_data = results.get("message", {})
-                draft_reply = message_data.get("text", "Maaf, AI tidak menghasilkan balasan.")
-                
-                # Untuk sementara, kita isi analysis dengan placeholder.
-                # Jika di Langflow Anda Node 1 (Analyst) mengembalikan teks terpisah,
-                # kita bisa tangkap dari 'artifacts' atau dari outputs index ke-1.
-                # Tapi untuk memastikan fase 2 ini running, kita bikin dinamis dulu.
-                analysis = f"Analisis dari AI Analyst untuk keluhan: '{user_complaint[:50]}...'"
+            # Robust parsing
+            try:
+                outputs = data.get("outputs", [])
+                if outputs:
+                    first_output = outputs[0].get("outputs", [{}])[0]
+                    results = first_output.get("results", {})
+                    message_data = results.get("message", {})
+                    ai_text = message_data.get("text", "")
+            except (IndexError, KeyError, TypeError):
+                pass
 
-                # === CATATAN PENTING UNTUK ANDA ===
-                # Jika nanti setelah testing di Swagger, output 'analysis' kurang sesuai,
-                # kita akan sesuaikan parsing di sini. Tapi untuk Fase 2, ini sudah cukup.
-                # ===================================
+            if not ai_text:
+                ai_text = data.get("text", "") or data.get("output", "")
 
-                return {
-                    "analysis": analysis,
-                    "draft_reply": draft_reply
-                }
-            else:
-                # Jika struktur output tidak sesuai
-                return {
-                    "analysis": "Tidak ada output dari Langflow",
-                    "draft_reply": "Tidak ada output dari Langflow"
-                }
+            if not ai_text:
+                ai_text = "Terima kasih atas laporannya. Kami akan segera menindaklanjuti keluhan ini."
 
         except httpx.HTTPStatusError as e:
-            # Tangani error dari API (misal: API Key salah, URL salah)
-            return {
-                "analysis": f"Error API Langflow: {e.response.text}",
-                "draft_reply": ""
-            }
+            ai_text = f"Error API Langflow: {e.response.status_code}"
+        except httpx.RequestError as e:
+            ai_text = f"Error koneksi ke Langflow: {str(e)}"
         except Exception as e:
-            # Tangani error umum (misal: koneksi internet putus)
-            return {
-                "analysis": f"Error umum: {str(e)}",
-                "draft_reply": ""
-            }
+            ai_text = f"Error umum: {str(e)}"
+
+        # ===== EXTRACT STRUCTURED ANALYSIS =====
+        structured = _extract_structured_analysis(user_complaint, ai_text)
+
+        # Build analysis summary
+        analysis_summary = (
+            f"Kategori: {structured['severity_level']} — "
+            f"Gejala: {', '.join(structured['symptoms'])}. "
+            f"Sentimen: {structured['sentiment']} "
+            f"(skor {structured['sentiment_score']}/100). "
+            f"{structured['key_concern']}"
+        )
+
+        # Store structured analysis as JSON string di ai_analysis
+        # Prefix dengan __STRUCTURED__ marker
+        structured_json = json.dumps(structured)
+
+        return {
+            "analysis": analysis_summary,
+            "draft_reply": ai_text,
+            "structured": structured,  # untuk API response
+            "structured_json": structured_json,  # untuk DB storage
+        }
