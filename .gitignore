@@ -1,1 +1,26 @@
+# Virtual Environment & Python
+venv/
+.venv/
+backend/venv/
+__pycache__/
+backend/__pycache__/
+*.pyc
+backend/*.pyc
 
+# Environment variables
+.env
+.env.local
+backend/.env
+backend/.env.local
+frontend/.env
+
+# Node & Frontend
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+frontend/.vite/
+
+# IDE
+.vscode/
+.idea/
