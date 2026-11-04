@@ -26,10 +26,12 @@ class TicketResponse(BaseModel):
     ai_draft_reply: Optional[str] = None
     status: str
     created_at: Optional[datetime] = None
+    sla_deadline: Optional[datetime] = None          # <-- TAMBAH
+    sla_remaining_minutes: Optional[int] = None      # <-- TAMBAH
 
     class Config:
         from_attributes = True
 
 
 class TicketStatusUpdate(BaseModel):
-    status: str  # "PROCESSING", "RESOLVED", "FAILED", "IN_REVIEW"
+    status: str  # "DRAFT", "PROCESSING", "RESOLVED", "FAILED", "IN_REVIEW"

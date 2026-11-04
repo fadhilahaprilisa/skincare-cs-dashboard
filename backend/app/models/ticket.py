@@ -5,13 +5,12 @@ import enum
 
 Base = declarative_base()
 
-
 class TicketStatus(str, enum.Enum):
+    DRAFT = "DRAFT"           # <-- Status Baru
     PROCESSING = "PROCESSING"
+    IN_REVIEW = "IN_REVIEW"
     RESOLVED = "RESOLVED"
     FAILED = "FAILED"
-    IN_REVIEW = "IN_REVIEW"
-
 
 class Ticket(Base):
     __tablename__ = "tickets"
@@ -22,9 +21,14 @@ class Ticket(Base):
     product = Column(String(150), nullable=True)
     product_batch = Column(String(50), nullable=True)
     category = Column(String(100), nullable=True)
-    severity = Column(String(20), nullable=True)
+    severity = Column(String(20), nullable=True) # High, Moderate, Low
     assigned_cs = Column(String(100), nullable=True)
     ai_analysis = Column(Text, nullable=True)
     ai_draft_reply = Column(Text, nullable=True)
-    status = Column(SQLEnum(TicketStatus), default=TicketStatus.PROCESSING)
+    
+    # Kolom SLA Baru
+    sla_deadline = Column(DateTime(timezone=True), nullable=True)
+    sla_remaining_minutes = Column(Integer, nullable=True)
+    
+    status = Column(SQLEnum(TicketStatus), default=TicketStatus.DRAFT) # Default jadi DRAFT
     created_at = Column(DateTime(timezone=True), server_default=func.now())

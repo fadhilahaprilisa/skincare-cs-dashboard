@@ -8,7 +8,7 @@ import Button from "../components/ui/Button";
 import LineChartCard from "../components/domain/LineChartCard";
 import BarChartCard from "../components/domain/BarChartCard";
 import { ticketsAPI, analyticsAPI, getErrorMessage } from "../lib/api";
-import { Sparkles, ArrowRight, ShieldCheck, BarChart3, TrendingUp, Layers, Package, RefreshCw } from "lucide-react";
+import { Sparkles, ArrowRight, ShieldCheck, BarChart3, TrendingUp, Layers, Package, RefreshCw, Timer } from "lucide-react";
 
 // ===== EMPTY CHART FALLBACK =====
 const EmptyChart = ({ message }) => (
@@ -100,6 +100,12 @@ const AdminDashboard = () => {
 
   const kpi = analytics?.kpi || {};
 
+  // Hitung jumlah tiket yang menunggu review secara dinamis dari data tiket jika belum ada dari API
+  const pendingReviewCount = 
+    (kpi.pending ?? 0) + 
+    (kpi.draft_count ?? 0) || 
+    tickets.filter(t => t.status === "DRAFT" || t.status === "IN_REVIEW" || t.status === "PROCESSING").length;
+
   return (
     <DashboardLayout
       role="admin"
@@ -144,7 +150,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* ===== KPI METRIC CARDS ===== */}
+        {/* ===== KPI METRIC CARDS (Reordered to match reference image) ===== */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             label="Total Tiket"
@@ -154,6 +160,16 @@ const AdminDashboard = () => {
             trendDirection="up"
             icon="inbox"
             description="Volume total aduan terdaftar"
+          />
+          <StatCard
+            label="Menunggu Review"
+            value={pendingReviewCount}
+            unit="antrean"
+            trend="Perlu Tinjauan"
+            trendDirection="down"
+            icon="hourglass_top"
+            accentBar="bg-amber-400"
+            description="Tiket DRAFT + IN_REVIEW"
           />
           <StatCard
             label="Kasus Tuntas"
@@ -166,31 +182,21 @@ const AdminDashboard = () => {
             description="Tingkat keberhasilan resolusi CS"
           />
           <StatCard
-            label="Menunggu Review"
-            value={kpi.pending ?? tickets.filter(t => t.status === "IN_REVIEW" || t.status === "PROCESSING").length}
-            unit="antrean"
-            trend="Perlu Tinjauan"
-            trendDirection="down"
-            icon="hourglass_top"
-            accentBar="bg-amber-400"
-            description="Tiket menunggu persetujuan SOP"
-          />
-          <StatCard
-            label="Eskalasi Mendesak"
-            value={kpi.urgent ?? tickets.filter(t => t.severity === "High").length}
+            label="SLA Kritis"
+            value={kpi.sla_critical_count ?? tickets.filter(t => t.status !== "RESOLVED" && t.sla_remaining_minutes <= 30).length}
             unit="kritis"
-            trend="High Priority"
+            trend="SLA < 30m"
             trendDirection="down"
             icon="warning"
             variant="urgent"
             accentBar="bg-red-500"
-            description="Segera butuh investigasi formula"
+            description="Tiket mendekati batas waktu"
           />
         </div>
 
         {/* ===== ANALYTICS ROW: TREND + PRODUCT BREAKDOWN ===== */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Trend Line Chart (7 COLS) */}
+          {/* Trend Line Chart */}
           <Card tier="base" className="lg:col-span-7 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-800">
@@ -210,7 +216,7 @@ const AdminDashboard = () => {
             )}
           </Card>
 
-          {/* Product Complaints (5 COLS) */}
+          {/* Product Complaints */}
           <Card tier="base" className="lg:col-span-5 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -302,6 +308,7 @@ const AdminDashboard = () => {
                     <th className="px-4 py-3">Produk & Masalah</th>
                     <th className="px-4 py-3">Severity</th>
                     <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">SLA</th>
                     <th className="px-4 py-3">Assigned CS</th>
                   </tr>
                 </thead>
@@ -355,13 +362,22 @@ const AdminDashboard = () => {
                           type={
                             ticket.status === "RESOLVED"
                               ? "resolved"
-                              : ticket.status === "IN_REVIEW"
+                              : ticket.status === "IN_REVIEW" || ticket.status === "DRAFT"
                               ? "processing"
                               : "pending"
                           }
                           label={ticket.status}
-                          pulse={ticket.status === "PROCESSING"}
+                          pulse={ticket.status === "PROCESSING" || ticket.status === "IN_REVIEW"}
                         />
+                      </td>
+                      <td className="px-4 py-3 text-xs">
+                        {ticket.status === "RESOLVED" ? (
+                          <span className="text-emerald-600 font-semibold">✓ Done</span>
+                        ) : (
+                          <span className={`font-semibold ${ticket.sla_remaining_minutes <= 30 ? "text-red-600 animate-pulse" : "text-slate-700"}`}>
+                            {ticket.sla_remaining_minutes || 0} mnt
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-slate-600">
                         {ticket.assigned_cs || "-"}

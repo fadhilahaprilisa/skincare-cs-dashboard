@@ -13,6 +13,9 @@ class KPIOverview(BaseModel):
     resolved_trend: str
     pending_trend: str
     urgent_trend: str
+    # Field Baru:
+    draft_count: int
+    sla_critical_count: int
 
 
 class TrendPoint(BaseModel):

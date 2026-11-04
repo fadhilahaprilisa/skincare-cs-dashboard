@@ -14,6 +14,7 @@ const AdminTicketsPage = () => {
   const [exporting, setExporting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedTicket, setSelectedTicket] = useState(null);
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -147,14 +148,6 @@ const AdminTicketsPage = () => {
             >
               {exporting ? "Mengunduh..." : "Export"}
             </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              icon="add"
-              onClick={() => navigate("/admin/new-complaint")}
-            >
-              Buat Tiket
-            </Button>
           </div>
         </div>
 
@@ -172,10 +165,11 @@ const AdminTicketsPage = () => {
                 <button
                   key={f.key}
                   onClick={() => setActiveFilter(f.key)}
-                  className={`px-4 py-2 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition-colors cursor-pointer ${activeFilter === f.key
+                  className={`px-4 py-2 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                    activeFilter === f.key
                       ? "bg-[#141414] text-white shadow-none"
                       : "bg-[#F1F1F0] text-[#141414] hover:bg-[#E5E5E3]"
-                    }`}
+                  }`}
                 >
                   {f.label}
                 </button>
@@ -243,7 +237,7 @@ const AdminTicketsPage = () => {
                     return (
                       <tr
                         key={t.id}
-                        onClick={() => navigate(`/cs/tickets/${t.id}`)}
+                        onClick={() => setSelectedTicket(t)}
                         className="hover:bg-slate-50/60 transition-colors cursor-pointer"
                       >
                         <td className="px-4 py-3 font-mono text-slate-500 font-semibold">
@@ -296,7 +290,7 @@ const AdminTicketsPage = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              navigate(`/cs/tickets/${t.id}`);
+                              setSelectedTicket(t);
                             }}
                             className="bg-transparent text-slate-700 hover:bg-slate-100 hover:text-slate-950 rounded-full px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer"
                           >
@@ -312,6 +306,96 @@ const AdminTicketsPage = () => {
           )}
         </Card>
       </div>
+
+      {/* Modal Detail Read-Only untuk Admin */}
+      {selectedTicket && (
+        <div 
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedTicket(null)}
+        >
+          <div 
+            className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">
+                  Detail Tiket #TK-{String(selectedTicket.id).padStart(4, "0")}
+                </h2>
+                <p className="text-xs text-slate-500">Mode Read-Only — Admin Monitoring</p>
+              </div>
+              <button 
+                onClick={() => setSelectedTicket(null)}
+                className="text-slate-400 hover:text-slate-700 p-1 rounded-full hover:bg-slate-100"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-5 space-y-5">
+              {/* Info Customer */}
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="text-slate-400 block mb-1">Pelanggan</span>
+                  <strong className="text-slate-900">{selectedTicket.customer_name}</strong>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="text-slate-400 block mb-1">Produk</span>
+                  <strong className="text-slate-900">{selectedTicket.product || "-"}</strong>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="text-slate-400 block mb-1">Severity</span>
+                  <strong className="text-slate-900">{selectedTicket.severity}</strong>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="text-slate-400 block mb-1">Status</span>
+                  <strong className="text-slate-900">{selectedTicket.status}</strong>
+                </div>
+              </div>
+
+              {/* Keluhan */}
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 mb-2">Keluhan Customer</h3>
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 italic">
+                  "{selectedTicket.complaint_text}"
+                </div>
+              </div>
+
+              {/* AI Analysis */}
+              {selectedTicket.ai_analysis && (
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 mb-2">AI Analysis (Read-Only)</h3>
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700">
+                    {selectedTicket.ai_analysis}
+                  </div>
+                </div>
+              )}
+
+              {/* AI Draft Reply */}
+              {selectedTicket.ai_draft_reply && (
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 mb-2">AI Suggested Response</h3>
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                    {selectedTicket.ai_draft_reply}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-end">
+              <button
+                onClick={() => setSelectedTicket(null)}
+                className="px-4 py-2 rounded-full bg-[#141414] text-white text-xs font-medium hover:bg-[#2B2B2B]"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 };

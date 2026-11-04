@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Sparkles } from "lucide-react";
+import { Sparkles, FileText, Clock } from "lucide-react";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
@@ -16,7 +16,6 @@ const InputComplaintPage = () => {
   const location = useLocation();
   const toast = useToast();
 
-  // Deteksi role aktif dari URL path atau tokenStorage
   const currentUser = tokenStorage.getUser();
   const currentRole = location.pathname.startsWith("/admin")
     ? "admin"
@@ -33,8 +32,6 @@ const InputComplaintPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-
-  // State untuk attachment
   const [attachments, setAttachments] = useState([]);
 
   const handleUploadAttachment = () => {
@@ -117,7 +114,7 @@ const InputComplaintPage = () => {
     if (!formData.customerName.trim()) {
       setError("Nama customer wajib diisi");
       toast.warning("Form Belum Lengkap", {
-        description: "Nama customer wajib diisi sebelum analisis.",
+        description: "Nama customer wajib diisi sebelum membuat tiket.",
       });
       return;
     }
@@ -139,13 +136,8 @@ const InputComplaintPage = () => {
     setIsSubmitting(true);
     const toastId = "create-ticket-process";
 
-    // 1. Tampilkan toast loading: "Menganalisis keluhan dengan AI..."
-    toast.loading("Menganalisis keluhan dengan AI...", {
-      id: toastId,
-      description: "Memproses triase NLP, deteksi gejala, dan draf SOP...",
-    });
-
     try {
+      // HANYA CREATE TIKET (STATUS DRAFT), TIDAK ANALISIS AI
       const createdTicket = await ticketsAPI.create({
         customer_name: formData.customerName,
         complaint_text: formData.complaint,
@@ -159,15 +151,14 @@ const InputComplaintPage = () => {
         ? `#TK-${String(createdTicket.id).padStart(4, "0")}` 
         : "Tiket Baru";
 
-      // 2. Setelah selesai, ubah menjadi toast success dengan action button "Lihat Tiket"
-      toast.success(`${ticketCode} Berhasil Dibuat`, {
+      toast.success(`${ticketCode} Berhasil Dibuat (DRAFT)`, {
         id: toastId,
-        description: "Analisis AI selesai dan draf balasan SOP telah tersedia.",
+        description: "Tiket telah masuk antrean. Buka halaman AI Analysis untuk memicu proses analisis.",
         action: {
           label: "Lihat Tiket",
           onClick: () => {
             if (createdTicket?.id) {
-              navigate(`/cs/tickets/${createdTicket.id}`);
+              navigate(`/cs/ai-analysis/${createdTicket.id}`);
             } else {
               navigate(currentRole === "admin" ? "/admin/tickets" : "/cs/tickets");
             }
@@ -195,13 +186,13 @@ const InputComplaintPage = () => {
       role={currentRole}
       topbarProps={{
         title: "Input Keluhan Customer",
-        subtitle: "Catat keluhan customer untuk dibuat tiket dan dianalisis secara instan dengan AI.",
+        subtitle: "Catat keluhan customer untuk dibuat tiket DRAFT dan dianalisis nanti.",
         showSearch: false,
         showInputButton: false,
       }}
     >
       <div className="p-6 space-y-6">
-        {/* Page Toolbar (Breadcrumbs + Mode Tag + Action Batal) */}
+        {/* Page Toolbar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
           <div className="flex items-center gap-2.5 flex-wrap">
             <nav className="flex items-center gap-1.5 text-xs text-slate-400">
@@ -463,7 +454,7 @@ const InputComplaintPage = () => {
                       Prioritas Awal
                     </label>
                     <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded-full">
-                      SLA: 2 Jam
+                      SLA Terhitung Otomatis
                     </span>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
@@ -497,7 +488,7 @@ const InputComplaintPage = () => {
                 </div>
               </div>
 
-              {/* Form Action Bar on Left Side */}
+              {/* Form Action Bar */}
               <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex flex-wrap items-center justify-end gap-3">
                 <button
                   type="button"
@@ -520,12 +511,12 @@ const InputComplaintPage = () => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      <span>Menganalisis Keluhan dengan AI...</span>
+                      <span>Menyimpan Tiket...</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="h-4 w-4 text-cyan-400" />
-                      <span>Buat Tiket & Analisis dengan AI</span>
+                      <FileText className="h-4 w-4" />
+                      <span>Buat Tiket (DRAFT)</span>
                     </>
                   )}
                 </button>
@@ -560,8 +551,7 @@ const InputComplaintPage = () => {
 
               <div className="p-5 flex flex-col gap-4">
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Setelah tiket diterbitkan, engine AI akan otomatis memproses teks
-                  pengaduan secara non-medis untuk mendukung respons SOP cepat.
+                  Setelah tiket DRAFT dibuat, Anda dapat memicu AI dari halaman detail tiket untuk memproses analisis dan draf balasan.
                 </p>
 
                 {/* Pipeline */}
@@ -657,12 +647,12 @@ const InputComplaintPage = () => {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span>Menganalisis Keluhan dengan AI...</span>
+                        <span>Menyimpan Tiket...</span>
                       </>
                     ) : (
                       <>
-                        <Sparkles className="h-4 w-4 text-cyan-400" />
-                        <span>Buat Tiket & Analisis dengan AI</span>
+                        <FileText className="h-4 w-4" />
+                        <span>Buat Tiket (DRAFT)</span>
                       </>
                     )}
                   </button>

@@ -159,8 +159,9 @@ export const CSSidebar = () => {
         {/* Navigation Menu List */}
         <nav className={`flex flex-col py-4 ${isCollapsed ? "px-2 space-y-1.5" : "px-3 space-y-1"}`}>
           <NavItem to="/cs/dashboard" icon={LayoutDashboard} label="Dashboard" isCollapsed={isCollapsed} />
-          <NavItem to="/cs/tickets" icon={Inbox} label="My Tickets" badge="24" isCollapsed={isCollapsed} />
+          <NavItem to="/cs/tickets" icon={Inbox} label="My Tickets" isCollapsed={isCollapsed} />
           <NavItem to="/cs/new-complaint" icon={PlusCircle} label="New Complaint" isCollapsed={isCollapsed} />
+          {/* Menu AI Analysis mengarah ke halaman khusus /cs/ai-analysis */}
           <NavItem to="/cs/ai-analysis" icon={BrainCircuit} label="AI Analysis" isCollapsed={isCollapsed} />
           <NavItem to="/cs/resolved" icon={CheckCircle2} label="Resolved" isCollapsed={isCollapsed} />
           <NavItem to="/cs/settings" icon={Settings} label="Settings" isCollapsed={isCollapsed} />
@@ -222,7 +223,7 @@ export const AdminSidebar = () => {
         {/* Navigation Menu List */}
         <nav className={`flex flex-col py-4 ${isCollapsed ? "px-2 space-y-1.5" : "px-3 space-y-1"}`}>
           <NavItem to="/admin/dashboard" icon={LayoutDashboard} label="Dashboard" isCollapsed={isCollapsed} />
-          <NavItem to="/admin/tickets" icon={Ticket} label="Tickets" badge="21" isCollapsed={isCollapsed} />
+          <NavItem to="/admin/tickets" icon={Ticket} label="Tickets" isCollapsed={isCollapsed} />
           <NavItem to="/admin/analytics" icon={BarChart3} label="Analytics" isCollapsed={isCollapsed} />
           <NavItem to="/admin/ai-insights" icon={BrainCircuit} label="AI Insights" isCollapsed={isCollapsed} />
           <NavItem to="/admin/cs-agents" icon={Users2} label="CS Agents" isCollapsed={isCollapsed} />

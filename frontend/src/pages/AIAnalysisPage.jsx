@@ -31,6 +31,7 @@ const AIAnalysisPage = () => {
   const [ticket, setTicket] = useState(null);
   const [allTickets, setAllTickets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAnalyzing, setIsAnalyzing] = useState(false); // <-- State analyzing terpisah
   const [error, setError] = useState(null);
   const [draftReply, setDraftReply] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
@@ -40,22 +41,57 @@ const AIAnalysisPage = () => {
     const fetchTicketData = async () => {
       setIsLoading(true);
       setError(null);
+      
+      // JIKA TIDAK ADA TICKET ID DI URL, JANGAN PROSES APA-APA
+      if (!ticketId) {
+        try {
+          const ticketList = await ticketsAPI.getAll();
+          setAllTickets(ticketList || []);
+        } catch (err) {
+          setError(getErrorMessage(err));
+        } finally {
+          setIsLoading(false);
+        }
+        return; 
+      }
+
       try {
         const ticketList = await ticketsAPI.getAll();
         setAllTickets(ticketList || []);
 
-        let targetTicket = null;
-        if (ticketId) {
-          targetTicket = await ticketsAPI.getById(ticketId);
-        } else if (ticketList && ticketList.length > 0) {
-          targetTicket = ticketList[0];
-        }
+        let targetTicket = await ticketsAPI.getById(ticketId);
 
         if (targetTicket) {
           setTicket(targetTicket);
           setDraftReply(targetTicket.ai_draft_reply || "");
+          
+          // Jika status DRAFT & belum ada analisis, jalankan AI secara asynchronous tanpa mengubah status tiket
+          if (targetTicket.status === "DRAFT" && !targetTicket.ai_analysis) {
+            setIsAnalyzing(true);
+            toast.info("Menganalisis keluhan...", {
+              description: "AI sedang membaca draf Anda. Status tiket tetap DRAFT.",
+              id: "ai-process",
+            });
+            try {
+              const analyzedTicket = await ticketsAPI.analyze(targetTicket.id);
+              setTicket(analyzedTicket);
+              setDraftReply(analyzedTicket.ai_draft_reply || "");
+              toast.success("Analisis Selesai", {
+                id: "ai-process",
+                description: "Silakan tinjau draf balasan. Status masih DRAFT.",
+              });
+            } catch (analyzeErr) {
+              console.error("Analyze error:", analyzeErr);
+              toast.error("AI Gagal Menganalisis", {
+                id: "ai-process",
+                description: getErrorMessage(analyzeErr),
+              });
+            } finally {
+              setIsAnalyzing(false);
+            }
+          }
         } else {
-          setError("Belum ada tiket keluhan yang dapat dianalisis.");
+          setError("Tiket tidak ditemukan.");
         }
       } catch (err) {
         setError(getErrorMessage(err));
@@ -114,13 +150,88 @@ const AIAnalysisPage = () => {
           <span className="material-symbols-outlined text-slate-400 text-[48px] animate-spin">
             progress_activity
           </span>
-          <p className="text-xs text-slate-500 mt-3">Menganalisis keluhan dengan Lumière Neural AI...</p>
+          <p className="text-xs text-slate-500 mt-3">Memuat data...</p>
         </div>
       </DashboardLayout>
     );
   }
 
-  // Error View
+  // ==== HALAMAN KHUSUS: PILIH TIKET DULU ====
+  if (!ticketId) {
+    return (
+      <DashboardLayout 
+        role="cs" 
+        topbarProps={{ 
+          title: "AI Complaint Analysis", 
+          subtitle: "Pilih tiket untuk memulai analisis AI",
+          showInputButton: false 
+        }}
+      >
+        <div className="p-6 max-w-4xl mx-auto mt-8">
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-white via-[#FFF0F5]/40 to-[#E0F2FE]/40 border border-violet-100 shadow-[0_12px_36px_rgba(124,92,255,0.06)] flex flex-col md:flex-row">
+            
+            {/* TEKS KIRI */}
+            <div className="flex-1 p-8 sm:p-12 relative z-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 border border-slate-200 text-slate-600 text-[11px] font-semibold uppercase tracking-wider mb-6">
+                <span className="material-symbols-outlined text-[14px]">psychology</span>
+                Lumière Neural Hub
+              </div>
+              
+              <h1 className="text-3xl sm:text-4xl font-bold text-[#1E1B4B] tracking-tight leading-tight">
+                Pilih Tiket untuk <br/>
+                <span className="text-[#EC4899]">Mulai Analisis AI</span>
+              </h1>
+              
+              <p className="text-sm text-slate-600 mt-4 leading-relaxed max-w-md">
+                Lumière Neural Engine menganalisis keluhan pelanggan secara mendalam—mulai dari deteksi gejala, tingkat keparahan, hingga draf balasan empatik. 
+                Pilih tiket dari antrean Anda untuk memulai.
+              </p>
+
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  icon="list_alt"
+                  onClick={() => navigate("/cs/tickets")}
+                >
+                  Pilih Tiket Sekarang
+                </Button>
+              </div>
+
+              {/* Mini Info */}
+              <div className="mt-8 pt-6 border-t border-slate-200/60 flex items-center gap-4 text-xs text-slate-500">
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-slate-700 text-[16px]">shield</span>
+                  Human-in-the-Loop
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-slate-700 text-[16px]">bolt</span>
+                  Analisis Instan
+                </div>
+              </div>
+            </div>
+
+            {/* VISUAL KANAN (Dekoratif) */}
+            <div className="relative w-full md:w-1/3 min-h-[200px] md:min-h-full bg-slate-50/50 flex items-center justify-center p-8 border-t md:border-t-0 md:border-l border-violet-100/50">
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+              <div className="relative z-10 w-40 h-40 rounded-full bg-white shadow-xl flex items-center justify-center border border-slate-100">
+                <span className="material-symbols-outlined text-[64px] text-[#EC4899]/80">auto_awesome</span>
+                <div className="absolute -top-3 -right-3 w-10 h-10 bg-[#E0F2FE] rounded-full flex items-center justify-center shadow-sm border border-white">
+                  <span className="material-symbols-outlined text-[#3B82F6] text-[20px]">psychology</span>
+                </div>
+                <div className="absolute -bottom-3 -left-3 w-10 h-10 bg-[#FFF0F5] rounded-full flex items-center justify-center shadow-sm border border-white">
+                  <span className="material-symbols-outlined text-[#EC4899] text-[20px]">chat</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+  // ==== AKHIR HALAMAN PILIH TIKET ====
+
+  // Error View (jika ada error dari API)
   if (error || !ticket) {
     return (
       <DashboardLayout role="cs" topbarProps={{ title: "AI Complaint Analysis", subtitle: "Error" }}>
@@ -234,6 +345,15 @@ const AIAnalysisPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* LEFT: FROSTED CHAT THREAD (7 COLS) */}
             <div className="lg:col-span-7 space-y-4">
+              
+              {/* Banner Loading Analisis AI */}
+              {isAnalyzing && (
+                <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 flex items-center gap-3 mb-4">
+                  <span className="material-symbols-outlined text-blue-600 text-[20px] animate-spin">progress_activity</span>
+                  <p className="text-sm text-blue-900 font-medium">AI sedang menganalisis keluhan... Mohon tunggu.</p>
+                </div>
+              )}
+
               <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-[0_1px_3px_rgba(15,23,42,0.03),0_4px_12px_rgba(15,23,42,0.02)]">
                 {/* Chat Header */}
                 <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
@@ -249,7 +369,7 @@ const AIAnalysisPage = () => {
                         </span>
                       </h3>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        Konteks: {ticket.product || "Produk Skincare"} • Batch {ticket.product_batch || "N/A"}
+                        Kontek: {ticket.product || "Produk Skincare"} Batch {ticket.product_batch || "N/A"}
                       </p>
                     </div>
                   </div>
@@ -372,10 +492,10 @@ const AIAnalysisPage = () => {
                       size="sm"
                       icon="send"
                       onClick={handleSend}
-                      disabled={isUpdating}
+                      disabled={isUpdating || ticket.status === "RESOLVED" || isAnalyzing}
                       className="flex-1"
                     >
-                      {isUpdating ? "Memproses..." : "Kirim & Selesaikan"}
+                      {isUpdating ? "Memproses..." : ticket.status === "RESOLVED" ? "Sudah Selesai" : "Kirim & Selesaikan"}
                     </Button>
                   </div>
 
