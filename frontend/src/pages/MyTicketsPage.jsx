@@ -5,6 +5,7 @@ import Card from "../components/ui/Card";
 import StatusBadge from "../components/ui/StatusBadge";
 import Button from "../components/ui/Button";
 import { ticketsAPI, exportAPI, downloadBlob, getErrorMessage } from "../lib/api";
+import { Timer } from "lucide-react";
 
 const MyTicketsPage = () => {
   const navigate = useNavigate();
@@ -50,8 +51,8 @@ const MyTicketsPage = () => {
   const filters = [
     { key: "all", label: `Semua (${tickets.length})` },
     {
-      key: "pending",
-      label: `Pending (${tickets.filter((t) => t.status !== "RESOLVED").length})`,
+      key: "draft",
+      label: `Draft (${tickets.filter((t) => t.status === "DRAFT").length})`,
     },
     {
       key: "review",
@@ -66,7 +67,7 @@ const MyTicketsPage = () => {
   const filteredTickets = tickets.filter((ticket) => {
     const matchFilter =
       activeFilter === "all" ||
-      (activeFilter === "pending" && ticket.status !== "RESOLVED") ||
+      (activeFilter === "draft" && ticket.status === "DRAFT") ||
       (activeFilter === "review" && ticket.status === "IN_REVIEW") ||
       (activeFilter === "resolved" && ticket.status === "RESOLVED");
 
@@ -99,6 +100,7 @@ const MyTicketsPage = () => {
   const getStatusBadge = (status) => {
     if (status === "RESOLVED") return "resolved";
     if (status === "IN_REVIEW") return "processing";
+    if (status === "DRAFT") return "pending";
     if (status === "FAILED") return "urgent";
     return "pending";
   };
@@ -237,6 +239,7 @@ const MyTicketsPage = () => {
                     <th className="px-4 py-3">Kategori</th>
                     <th className="px-4 py-3">Severity</th>
                     <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">SLA</th>
                     <th className="px-4 py-3 text-right">Aksi</th>
                   </tr>
                 </thead>
@@ -245,7 +248,13 @@ const MyTicketsPage = () => {
                     <tr
                       key={ticket.id}
                       className="hover:bg-slate-50/60 transition-colors cursor-pointer"
-                      onClick={() => navigate(`/cs/tickets/${ticket.id}`)}
+                      onClick={() => {
+                        if (ticket.status === "DRAFT") {
+                          navigate(`/cs/ai-analysis/${ticket.id}`);
+                        } else {
+                          navigate(`/cs/tickets/${ticket.id}`);
+                        }
+                      }}
                     >
                       <td className="px-4 py-3 font-semibold text-slate-700">
                         #TK-{String(ticket.id).padStart(4, "0")}
@@ -281,18 +290,31 @@ const MyTicketsPage = () => {
                         <StatusBadge
                           type={getStatusBadge(ticket.status)}
                           label={ticket.status}
-                          pulse={ticket.status === "PROCESSING"}
+                          pulse={ticket.status === "PROCESSING" || ticket.status === "IN_REVIEW"}
                         />
+                      </td>
+                      <td className="px-4 py-3 text-xs">
+                        {ticket.status === "RESOLVED" ? (
+                          <span className="text-emerald-600 font-semibold">✓ Done</span>
+                        ) : (
+                          <span className={`font-semibold ${ticket.sla_remaining_minutes <= 30 ? "text-red-600 animate-pulse" : "text-slate-700"}`}>
+                            {ticket.sla_remaining_minutes || 0} mnt
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/cs/tickets/${ticket.id}`);
+                            if (ticket.status === "DRAFT") {
+                              navigate(`/cs/ai-analysis/${ticket.id}`);
+                            } else {
+                              navigate(`/cs/tickets/${ticket.id}`);
+                            }
                           }}
                           className="inline-flex items-center gap-1 bg-transparent text-slate-700 hover:bg-slate-100 hover:text-slate-950 rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
                         >
-                          Lihat
+                          {ticket.status === "DRAFT" ? "Tinjau AI" : "Lihat"}
                           <span className="material-symbols-outlined text-[16px]">
                             arrow_forward
                           </span>

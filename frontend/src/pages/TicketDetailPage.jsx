@@ -11,6 +11,7 @@ import { useToast } from "../context/ToastContext";
 import { useSidebar } from "../context/SidebarContext";
 import productSerum from "../assets/product_serum.jpg";
 import productCleanser from "../assets/product_cleanser.jpg";
+import { Timer } from "lucide-react";
 
 const getProductThumbnail = (name = "") => {
   const p = (name || "").toLowerCase();
@@ -213,6 +214,7 @@ const TicketDetailPage = () => {
   const getStatusBadge = (status) => {
     if (status === "RESOLVED") return "resolved";
     if (status === "IN_REVIEW") return "processing";
+    if (status === "DRAFT") return "pending";
     if (status === "FAILED") return "urgent";
     return "pending";
   };
@@ -265,6 +267,15 @@ const TicketDetailPage = () => {
                 type={getSeverityBadge(ticket.severity)}
                 label={`${ticket.severity || "N/A"} Severity`}
               />
+              {/* SLA BADGE */}
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 ${
+                ticket.sla_remaining_minutes <= 30 && ticket.status !== "RESOLVED"
+                  ? "bg-red-50 text-red-600 border-red-200 animate-pulse" 
+                  : "bg-amber-50 text-amber-700 border-amber-200"
+              }`}>
+                <Timer className="w-3 h-3" />
+                {ticket.status === "RESOLVED" ? "SLA 0 mnt" : `SLA ${ticket.sla_remaining_minutes || 0} mnt`}
+              </span>
             </div>
           </div>
 

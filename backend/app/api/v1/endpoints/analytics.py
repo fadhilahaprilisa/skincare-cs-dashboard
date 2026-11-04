@@ -35,8 +35,19 @@ async def get_analytics_overview(
 
     # ===== KPI =====
     resolved_count = sum(1 for t in all_tickets if t.status == TicketStatus.RESOLVED)
+    # Pending: tikét yang sudah di-submit tapi belum resolved (IN_REVIEW, PROCESSING)
     pending_count = sum(1 for t in all_tickets if t.status in [TicketStatus.PROCESSING, TicketStatus.IN_REVIEW])
+    # Draft: tikét yang baru dibuat, belum di AI analysis
+    draft_count = sum(1 for t in all_tickets if t.status == TicketStatus.DRAFT)
     urgent_count = sum(1 for t in all_tickets if t.severity == "High")
+    
+    # Hitung SLA Kritis: Hanya tiket DRAFT/IN_REVIEW/PROCESSING yang sisa waktunya <= 30 menit
+    sla_critical_count = sum(
+        1 for t in all_tickets 
+        if t.status in [TicketStatus.DRAFT, TicketStatus.IN_REVIEW, TicketStatus.PROCESSING] 
+        and t.sla_remaining_minutes is not None 
+        and t.sla_remaining_minutes <= 30
+    )
 
     resolution_rate = round((resolved_count / total * 100), 1) if total > 0 else 0.0
 
@@ -51,6 +62,8 @@ async def get_analytics_overview(
         resolved_trend="+4.2%",
         pending_trend="-2.1%",
         urgent_trend="+1 urgent",
+        draft_count=draft_count,
+        sla_critical_count=sla_critical_count,
     )
 
     # ===== TREND (7 days) =====
@@ -71,7 +84,8 @@ async def get_analytics_overview(
 
         day_total = len(day_tickets)
         day_resolved = sum(1 for t in day_tickets if t.status == TicketStatus.RESOLVED)
-        day_pending = sum(1 for t in day_tickets if t.status in [TicketStatus.PROCESSING, TicketStatus.IN_REVIEW])
+        # Pending: kalau mau ikut hitung draft juga
+        day_pending = sum(1 for t in day_tickets if t.status in [TicketStatus.PROCESSING, TicketStatus.IN_REVIEW, TicketStatus.DRAFT])
 
         day_label = f"{day_names[target_date.weekday()]} ({target_date.day} {target_date.strftime('%b')})"
 
@@ -98,8 +112,7 @@ async def get_analytics_overview(
         }[label]
         severity_distribution.append(DistributionItem(name=display, value=pct, count=count))
 
-    # ===== SENTIMENT DISTRIBUTION (compute from AI analysis) =====
-    # Simplified: classify based on complaint text keywords
+    # ===== SENTIMENT DISTRIBUTION =====
     concerned, neutral, angry, positive = 0, 0, 0, 0
     angry_words = ["marah", "kecewa", "parah", "buruk", "tidak cocok", "alergi"]
     positive_words = ["terima kasih", "bagus", "suka", "puas", "membantu"]
@@ -153,7 +166,7 @@ async def get_analytics_overview(
         cs_map[cs_name]["assigned"] += 1
         if t.status == TicketStatus.RESOLVED:
             cs_map[cs_name]["resolved"] += 1
-        elif t.status in [TicketStatus.PROCESSING, TicketStatus.IN_REVIEW]:
+        elif t.status in [TicketStatus.PROCESSING, TicketStatus.IN_REVIEW, TicketStatus.DRAFT]:
             cs_map[cs_name]["pending"] += 1
 
     cs_performance = []

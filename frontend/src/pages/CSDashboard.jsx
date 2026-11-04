@@ -27,6 +27,7 @@ const getSeverityBadge = (severity) => {
 const getStatusBadge = (status) => {
   if (status === "RESOLVED") return "resolved";
   if (status === "IN_REVIEW") return "processing";
+  if (status === "DRAFT") return "pending";
   if (status === "FAILED") return "urgent";
   return "pending";
 };
@@ -64,13 +65,27 @@ const CSDashboard = () => {
   // ===== COMPUTE KPI =====
   const kpiCS = {
     myTickets: tickets.length,
-    pendingReply: tickets.filter((t) => t.status === "PROCESSING" || t.status === "IN_REVIEW").length,
+    // Menunggu balasan: hitung status DRAFT, PROCESSING, IN_REVIEW
+    pendingReply: tickets.filter((t) => 
+      t.status === "DRAFT" || t.status === "PROCESSING" || t.status === "IN_REVIEW"
+    ).length,
     resolvedToday: tickets.filter((t) => t.status === "RESOLVED").length,
-    urgent: tickets.filter((t) => t.severity === "High").length,
+    // Hitung semua tiket yang sisa waktunya <= 30 menit dan belum selesai
+    urgent: tickets.filter((t) => 
+      t.status !== "RESOLVED" && 
+      t.sla_remaining_minutes !== null && 
+      t.sla_remaining_minutes <= 30
+    ).length,
   };
 
+  // Priority tickets: DRAFT atau IN_REVIEW atau severity High
   const priorityTickets = tickets
-    .filter((t) => t.severity === "High" || t.status === "PROCESSING")
+    .filter((t) => 
+      t.status === "DRAFT" || 
+      t.status === "PROCESSING" || 
+      t.status === "IN_REVIEW" || 
+      t.severity === "High"
+    )
     .slice(0, 3);
 
   const userName = user?.full_name?.split(" ")[0] || "Sarah";
@@ -85,7 +100,7 @@ const CSDashboard = () => {
       }}
     >
       <div className="p-6 space-y-6 max-w-7xl mx-auto">
-        {/* ===== EDITORIAL GREETING BANNER WITH PHOTOGRAPH (Asset #5) ===== */}
+        {/* ===== EDITORIAL GREETING BANNER ===== */}
         <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-white/95 via-[#FFF0F5]/80 to-[#E0F2FE]/60 border border-violet-100 shadow-[0_12px_36px_rgba(124,92,255,0.06)] flex flex-col md:flex-row items-center justify-between min-h-[190px]">
           {/* Ambient Glow */}
           <div className="absolute top-0 left-0 w-80 h-80 bg-pink-100/40 rounded-full blur-3xl pointer-events-none" />
@@ -97,7 +112,7 @@ const CSDashboard = () => {
               Good Morning, {userName}
             </h1>
             <p className="text-xs sm:text-sm text-[#64748B] mt-2 leading-relaxed">
-              Anda memiliki <strong className="text-[#EC4899] font-bold">{kpiCS.urgent} tiket prioritas tinggi</strong> yang membutuhkan respons cepat sebelum batas SLA 45 menit.
+              Anda memiliki <strong className="text-[#EC4899] font-bold">{kpiCS.urgent} tiket prioritas tinggi</strong> yang membutuhkan respons cepat sebelum batas SLA.
             </p>
 
             <div className="flex items-center gap-3 mt-4 pt-2">
@@ -115,7 +130,8 @@ const CSDashboard = () => {
                 icon="psychology"
                 onClick={() => {
                   if (tickets.length > 0) {
-                    navigate(`/cs/ai-analysis/${tickets[0].id}`);
+                    const target = tickets.find(t => t.status === "DRAFT" || t.status === "IN_REVIEW") || tickets[0];
+                    navigate(`/cs/ai-analysis/${target.id}`);
                   } else {
                     navigate("/cs/new-complaint");
                   }
@@ -126,14 +142,13 @@ const CSDashboard = () => {
             </div>
           </div>
 
-          {/* Right Photographic Cutout with Soft Blend Edge */}
+          {/* Right Photographic Cutout */}
           <div className="relative w-full md:w-80 lg:w-96 h-48 md:h-full self-stretch shrink-0 overflow-hidden">
             <img
               src={dashboardBannerPhoto}
               alt="Editorial Skincare Serene Portrait Banner"
               className="w-full h-full object-cover object-center select-none"
             />
-            {/* Soft left gradient fade into banner background */}
             <div className="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-white via-white/70 to-transparent pointer-events-none hidden md:block" />
             <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none md:hidden" />
           </div>
@@ -142,7 +157,7 @@ const CSDashboard = () => {
         {/* ===== 4 KPI METRIC CARDS ===== */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
-            label="Antrean Saya"
+            label="Total Tiket"
             value={kpiCS.myTickets}
             unit="Aktif"
             icon="inbox"
@@ -171,7 +186,7 @@ const CSDashboard = () => {
             icon="emergency"
             variant="urgent"
             accentBar="bg-red-500"
-            description={`${kpiCS.urgent} tiket severity tinggi`}
+            description={`${kpiCS.urgent} tiket SLA <= 30 menit`}
           />
         </div>
 
@@ -192,285 +207,300 @@ const CSDashboard = () => {
           </div>
         )}
 
-        {/* ===== WORKSPACE CONTENT (FULL WIDTH) ===== */}
+        {/* ===== WORKSPACE CONTENT ===== */}
         {!isLoading && !error && (
           <div className="space-y-6">
-            {/* Prioritas Hari Ini (SLA Guard) - Full Width */}
+            {/* Prioritas Hari Ini (SLA Guard) */}
             <Card tier="base" className="p-6">
-                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                  <div className="flex items-center gap-3">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
-                    <h2 className="text-lg font-bold text-slate-900 tracking-tight">
-                      Prioritas Hari Ini (SLA Guard)
-                    </h2>
-                    <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[11px] font-bold">
-                      {priorityTickets.length} Tiket
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => navigate("/cs/tickets")}
-                    className="text-xs text-slate-600 hover:text-slate-950 hover:underline flex items-center gap-1 cursor-pointer font-medium"
-                  >
-                    Lihat Semua <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {priorityTickets.length === 0 ? (
-                  <div className="p-8 text-center rounded-2xl bg-slate-50 border border-slate-200/80">
-                    <span className="material-symbols-outlined text-slate-400 text-[48px]">
-                      check_circle
-                    </span>
-                    <p className="text-body-sm text-slate-500 mt-3">
-                      Semua tiket prioritas sudah tertangani dengan baik!
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3.5">
-                    {priorityTickets.map((ticket) => {
-                      const thumb = getProductThumbnail(ticket.product);
-                      return (
-                        <article
-                          key={ticket.id}
-                          className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-slate-800 hover:border-slate-300 transition-all duration-200 flex flex-col gap-3 group"
-                        >
-                          <div className="flex items-start justify-between gap-3 flex-wrap">
-                            <div className="flex items-center gap-3">
-                              {/* Product Thumbnail */}
-                              <div className="w-12 h-12 rounded-xl overflow-hidden bg-white border border-slate-200 shrink-0 relative">
-                                <img
-                                  src={thumb}
-                                  alt={ticket.product || "Skincare Product"}
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-
-                              <div>
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-sm font-bold text-slate-900">
-                                    {ticket.customer_name}
-                                  </span>
-                                  <span className="text-xs font-mono text-slate-500 font-semibold">
-                                    #TK-{String(ticket.id).padStart(4, "0")}
-                                  </span>
-                                </div>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                  {ticket.product || "-"} {ticket.product_batch ? `• Batch ${ticket.product_batch}` : ""}
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <StatusBadge
-                                type={getSeverityBadge(ticket.severity)}
-                                label={ticket.severity || "N/A"}
-                              />
-                              <StatusBadge
-                                type={getStatusBadge(ticket.status)}
-                                label={ticket.status}
-                                pulse={ticket.status === "PROCESSING"}
-                              />
-                            </div>
-                          </div>
-
-                          <blockquote className="text-xs text-slate-700 bg-white p-3 rounded-xl italic border border-slate-200/80 leading-relaxed shadow-xs">
-                            "{ticket.complaint_text}"
-                          </blockquote>
-
-                          {ticket.ai_analysis && (
-                            <div className="flex items-start gap-2 p-2.5 px-3 rounded-xl bg-slate-100/80 border border-slate-200 text-xs text-slate-700">
-                              <Sparkles className="w-4 h-4 text-slate-900 shrink-0 mt-0.5" />
-                              <span className="line-clamp-2">
-                                <strong className="text-slate-900">AI Triage:</strong> {ticket.ai_analysis}
-                              </span>
-                            </div>
-                          )}
-
-                          <div className="flex items-center justify-between pt-2 border-t border-slate-200/80 flex-wrap gap-2 text-xs">
-                            <span className="text-slate-500">
-                              CS Ditugaskan: <strong className="text-slate-900">{ticket.assigned_cs || userName}</strong>
-                            </span>
-
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => navigate(`/cs/ai-analysis/${ticket.id}`)}
-                                className="px-3 py-1.5 rounded-full bg-white text-slate-700 hover:bg-slate-100 text-xs border border-slate-200/90 transition-colors cursor-pointer font-medium"
-                              >
-                                Hub & Spoke
-                              </button>
-                              <Button
-                                variant="primary"
-                                size="sm"
-                                icon="auto_fix_high"
-                                onClick={() => navigate(`/cs/tickets/${ticket.id}`)}
-                              >
-                                Draf Respon AI
-                              </Button>
-                            </div>
-                          </div>
-                        </article>
-                      );
-                    })}
-                  </div>
-                )}
-              </Card>
-
-              {/* Daftar Tiket Saya Table */}
-              <Card tier="base" className="overflow-hidden">
-                <div className="p-5 bg-white border-b border-slate-100 flex items-center justify-between">
-                  <div>
-                    <h2 className="text-base font-bold text-slate-900 tracking-tight">
-                      Daftar Tiket Antrean Saya
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Antrean terverifikasi dan riwayat interaksi harian
-                    </p>
-                  </div>
-                  <span className="px-2.5 py-1 rounded-full bg-slate-100 text-xs text-slate-600 font-medium">
-                    {tickets.length} total tiket
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div className="flex items-center gap-3">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+                  <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+                    Prioritas Hari Ini (SLA Guard)
+                  </h2>
+                  <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[11px] font-bold">
+                    {priorityTickets.length} Tiket
                   </span>
                 </div>
 
-                {tickets.length === 0 ? (
-                  <div className="p-12 text-center">
-                    <span className="material-symbols-outlined text-slate-400 text-[48px] mb-3">
-                      inbox
-                    </span>
-                    <p className="text-xs text-slate-500 mb-4">
-                      Belum ada tiket yang ditugaskan ke Anda.
-                    </p>
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={() => navigate("/cs/new-complaint")}
-                    >
-                      Buat Tiket Baru
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-50/80 text-slate-500 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider">
-                        <tr>
-                          <th className="px-4 py-3">ID</th>
-                          <th className="px-4 py-3">Pelanggan</th>
-                          <th className="px-4 py-3">Masalah</th>
-                          <th className="px-4 py-3">Tingkat</th>
-                          <th className="px-4 py-3">Status</th>
-                          <th className="px-4 py-3">Aksi</th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-slate-100">
-                        {tickets.slice(0, 6).map((ticket) => (
-                          <tr
-                            key={ticket.id}
-                            className="hover:bg-slate-50/60 transition-colors cursor-pointer"
-                            onClick={() => navigate(`/cs/tickets/${ticket.id}`)}
-                          >
-                            <td className="px-4 py-3 font-mono text-slate-500 font-semibold">
-                              #TK-{String(ticket.id).padStart(4, "0")}
-                            </td>
-                            <td className="px-4 py-3 font-medium text-slate-900">
-                              {ticket.customer_name}
-                            </td>
-                            <td className="px-4 py-3 text-slate-600 max-w-xs truncate">
-                              {ticket.category || "-"}
-                            </td>
-                            <td className="px-4 py-3">
-                              <StatusBadge
-                                type={getSeverityBadge(ticket.severity)}
-                                label={ticket.severity || "N/A"}
-                              />
-                            </td>
-                            <td className="px-4 py-3">
-                              <StatusBadge
-                                type={getStatusBadge(ticket.status)}
-                                label={ticket.status}
-                                pulse={ticket.status === "PROCESSING"}
-                              />
-                            </td>
-                            <td className="px-4 py-3">
-                              <span className="text-slate-900 hover:underline font-medium">
-                                Detail →
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </Card>
+                <button
+                  onClick={() => navigate("/cs/tickets")}
+                  className="text-xs text-slate-600 hover:text-slate-950 hover:underline flex items-center gap-1 cursor-pointer font-medium"
+                >
+                  Lihat Semua <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
 
-              {/* AI Assistant Card with Human-in-the-Loop (Paling Bawah) */}
-              <Card tier="base" className="p-6 relative overflow-hidden">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-900 shadow-xs shrink-0">
-                      <Sparkles className="w-5 h-5 text-slate-900" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-base font-bold text-slate-900">
-                          AI Triage Copilot
-                        </h3>
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                          Lumière Neural v2.4 Active
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        Analisis otomatis kategori keluhan, sentimen emosi pelanggan, dan draf respons SOP non-medis.
-                      </p>
-                    </div>
-                  </div>
-
-                  <Button
-                    variant="primary"
-                    size="md"
-                    icon="psychology"
-                    onClick={() => {
-                      if (tickets.length > 0) {
-                        navigate(`/cs/ai-analysis/${tickets[0].id}`);
-                      } else {
-                        navigate("/cs/new-complaint");
-                      }
-                    }}
-                  >
-                    Buka AI Complaint Hub
-                  </Button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 text-xs text-slate-700">
-                  <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <span className="material-symbols-outlined text-slate-700 text-[18px]">
-                      biotech
-                    </span>
-                    <span className="font-medium">Deteksi Formula & Kandungan Alergen</span>
-                  </div>
-                  <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <span className="material-symbols-outlined text-slate-700 text-[18px]">
-                      support_agent
-                    </span>
-                    <span className="font-medium">Rekomendasi Balasan SOP Empatis</span>
-                  </div>
-                  <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <span className="material-symbols-outlined text-slate-700 text-[18px]">
-                      sentiment_satisfied
-                    </span>
-                    <span className="font-medium">Penyesuaian Nada Bicara Ramah</span>
-                  </div>
-                </div>
-
-                {/* Human in the loop guarantee */}
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start gap-2.5">
-                  <ShieldCheck className="w-4 h-4 text-slate-700 shrink-0 mt-0.5" />
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    <strong className="text-slate-900 font-semibold">Human-in-the-Loop:</strong> AI hanya memberikan rekomendasi draf. Validasi akhir tetap dilakukan oleh agen CS sebelum terkirim.
+              {priorityTickets.length === 0 ? (
+                <div className="p-8 text-center rounded-2xl bg-slate-50 border border-slate-200/80">
+                  <span className="material-symbols-outlined text-slate-400 text-[48px]">
+                    check_circle
+                  </span>
+                  <p className="text-body-sm text-slate-500 mt-3">
+                    Semua tiket prioritas sudah tertangani dengan baik!
                   </p>
                 </div>
-              </Card>
-            </div>
+              ) : (
+                <div className="space-y-3.5">
+                  {priorityTickets.map((ticket) => {
+                    const thumb = getProductThumbnail(ticket.product);
+                    const slaMin = ticket.sla_remaining_minutes || 0;
+                    const isCritical = slaMin <= 30;
+
+                    return (
+                      <article
+                        key={ticket.id}
+                        className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-slate-800 hover:border-slate-300 transition-all duration-200 flex flex-col gap-3 group"
+                      >
+                        <div className="flex items-start justify-between gap-3 flex-wrap">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-white border border-slate-200 shrink-0 relative">
+                              <img
+                                src={thumb}
+                                alt={ticket.product || "Skincare Product"}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-sm font-bold text-slate-900">
+                                  {ticket.customer_name}
+                                </span>
+                                <span className="text-xs font-mono text-slate-500 font-semibold">
+                                  #TK-{String(ticket.id).padStart(4, "0")}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-500 mt-0.5">
+                                {ticket.product || "-"} {ticket.product_batch ? `• Batch ${ticket.product_batch}` : ""}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <StatusBadge
+                              type={getSeverityBadge(ticket.severity)}
+                              label={ticket.severity || "N/A"}
+                            />
+                            <StatusBadge
+                              type={getStatusBadge(ticket.status)}
+                              label={ticket.status}
+                              pulse={ticket.status === "PROCESSING" || ticket.status === "IN_REVIEW"}
+                            />
+                            {/* SLA BADGE */}
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                              isCritical 
+                                ? "bg-red-50 text-red-600 border-red-200 animate-pulse" 
+                                : "bg-amber-50 text-amber-700 border-amber-200"
+                            }`}>
+                              <Timer className="w-3 h-3 inline mr-0.5" />
+                              SLA {slaMin} mnt
+                            </span>
+                          </div>
+                        </div>
+
+                        <blockquote className="text-xs text-slate-700 bg-white p-3 rounded-xl italic border border-slate-200/80 leading-relaxed shadow-xs">
+                          "{ticket.complaint_text}"
+                        </blockquote>
+
+                        {ticket.ai_analysis && (
+                          <div className="flex items-start gap-2 p-2.5 px-3 rounded-xl bg-slate-100/80 border border-slate-200 text-xs text-slate-700">
+                            <Sparkles className="w-4 h-4 text-slate-900 shrink-0 mt-0.5" />
+                            <span className="line-clamp-2">
+                              <strong className="text-slate-900">AI Triage:</strong> {ticket.ai_analysis}
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-200/80 flex-wrap gap-2 text-xs">
+                          <span className="text-slate-500">
+                            CS: <strong className="text-slate-900">{ticket.assigned_cs || userName}</strong>
+                          </span>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => navigate(`/cs/ai-analysis/${ticket.id}`)}
+                              className="px-3 py-1.5 rounded-full bg-white text-slate-700 hover:bg-slate-100 text-xs border border-slate-200/90 transition-colors cursor-pointer font-medium"
+                            >
+                              Hub & Spoke
+                            </button>
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              icon="auto_fix_high"
+                              onClick={() => navigate(`/cs/tickets/${ticket.id}`)}
+                            >
+                              Draf Respon AI
+                            </Button>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </Card>
+
+            {/* Daftar Tiket Saya Table */}
+            <Card tier="base" className="overflow-hidden">
+              <div className="p-5 bg-white border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                    Daftar Tiket Antrean Saya
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Antrean terverifikasi dan riwayat interaksi harian
+                  </p>
+                </div>
+                <span className="px-2.5 py-1 rounded-full bg-slate-100 text-xs text-slate-600 font-medium">
+                  {tickets.length} total tiket
+                </span>
+              </div>
+
+              {tickets.length === 0 ? (
+                <div className="p-12 text-center">
+                  <span className="material-symbols-outlined text-slate-400 text-[48px] mb-3">
+                    inbox
+                  </span>
+                  <p className="text-xs text-slate-500 mb-4">
+                    Belum ada tiket yang ditugaskan ke Anda.
+                  </p>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => navigate("/cs/new-complaint")}
+                  >
+                    Buat Tiket Baru
+                  </Button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-50/80 text-slate-500 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider">
+                      <tr>
+                        <th className="px-4 py-3">ID</th>
+                        <th className="px-4 py-3">Pelanggan</th>
+                        <th className="px-4 py-3">Masalah</th>
+                        <th className="px-4 py-3">Tingkat</th>
+                        <th className="px-4 py-3">Status</th>
+                        <th className="px-4 py-3">SLA</th>
+                        <th className="px-4 py-3">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-slate-100">
+                      {tickets.slice(0, 6).map((ticket) => (
+                        <tr
+                          key={ticket.id}
+                          className="hover:bg-slate-50/60 transition-colors cursor-pointer"
+                          onClick={() => navigate(`/cs/tickets/${ticket.id}`)}
+                        >
+                          <td className="px-4 py-3 font-mono text-slate-500 font-semibold">
+                            #TK-{String(ticket.id).padStart(4, "0")}
+                          </td>
+                          <td className="px-4 py-3 font-medium text-slate-900">
+                            {ticket.customer_name}
+                          </td>
+                          <td className="px-4 py-3 text-slate-600 max-w-xs truncate">
+                            {ticket.category || "-"}
+                          </td>
+                          <td className="px-4 py-3">
+                            <StatusBadge
+                              type={getSeverityBadge(ticket.severity)}
+                              label={ticket.severity || "N/A"}
+                            />
+                          </td>
+                          <td className="px-4 py-3">
+                            <StatusBadge
+                              type={getStatusBadge(ticket.status)}
+                              label={ticket.status}
+                              pulse={ticket.status === "PROCESSING" || ticket.status === "IN_REVIEW"}
+                            />
+                          </td>
+                          <td className="px-4 py-3 text-xs">
+                            {ticket.status === "RESOLVED" ? (
+                              <span className="text-emerald-600 font-semibold">✓ 0 mnt</span>
+                            ) : (
+                              <span className={`font-semibold ${ticket.sla_remaining_minutes <= 30 ? "text-red-600" : "text-slate-700"}`}>
+                                {ticket.sla_remaining_minutes || 0} mnt
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="text-slate-900 hover:underline font-medium">
+                              Detail →
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </Card>
+
+            {/* AI Assistant Card */}
+            <Card tier="base" className="p-6 relative overflow-hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-900 shadow-xs shrink-0">
+                    <Sparkles className="w-5 h-5 text-slate-900" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-bold text-slate-900">
+                        AI Triage Copilot
+                      </h3>
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Lumière Neural v2.4 Active
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Analisis otomatis kategori keluhan, sentimen emosi pelanggan, dan draf respons SOP non-medis.
+                    </p>
+                  </div>
+                </div>
+
+                <Button
+                  variant="primary"
+                  size="md"
+                  icon="psychology"
+                  onClick={() => {
+                    if (tickets.length > 0) {
+                      const target = tickets.find(t => t.status === "DRAFT" || t.status === "IN_REVIEW") || tickets[0];
+                      navigate(`/cs/ai-analysis/${target.id}`);
+                    } else {
+                      navigate("/cs/new-complaint");
+                    }
+                  }}
+                >
+                  Buka AI Complaint Hub
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 text-xs text-slate-700">
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                  <span className="material-symbols-outlined text-slate-700 text-[18px]">biotech</span>
+                  <span className="font-medium">Deteksi Formula & Kandungan Alergen</span>
+                </div>
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                  <span className="material-symbols-outlined text-slate-700 text-[18px]">support_agent</span>
+                  <span className="font-medium">Rekomendasi Balasan SOP Empatis</span>
+                </div>
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                  <span className="material-symbols-outlined text-slate-700 text-[18px]">sentiment_satisfied</span>
+                  <span className="font-medium">Penyesuaian Nada Bicara Ramah</span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-slate-700 shrink-0 mt-0.5" />
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  <strong className="text-slate-900 font-semibold">Human-in-the-Loop:</strong> AI hanya memberikan rekomendasi draf. Validasi akhir tetap dilakukan oleh agen CS sebelum terkirim.
+                </p>
+              </div>
+            </Card>
+          </div>
         )}
       </div>
     </DashboardLayout>

@@ -94,6 +94,18 @@ export const ticketsAPI = {
     return res.data;
   },
 
+  analyze: async (id) => {
+    // Naikkan timeout jadi 120 detik (120000 ms) khusus untuk analisis AI
+    const res = await api.post(
+      `/api/v1/tickets/${id}/analyze`,
+      {},
+      {
+        timeout: 120000,
+      }
+    );
+    return res.data;
+  },
+
   create: async (payload) => {
     const res = await api.post("/api/v1/tickets", payload);
     return res.data;
